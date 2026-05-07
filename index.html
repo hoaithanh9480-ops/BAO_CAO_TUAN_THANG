@@ -9,27 +9,14 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; margin: 0; padding: 10px; }
         .container { max-width: 1250px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); min-height: 95vh; }
         
-        /* HEADER CỐ ĐỊNH */
-        .header-fixed {
-            position: sticky;
-            top: 0;
-            background: white;
-            z-index: 1000;
-            padding: 15px 15px 5px 15px;
-            margin: -15px -15px 10px -15px;
-            border-radius: 12px 12px 0 0;
-        }
-
+        .header-fixed { position: sticky; top: 0; background: white; z-index: 1000; padding: 15px 15px 5px 15px; margin: -15px -15px 10px -15px; border-radius: 12px 12px 0 0; }
         h1 { text-align: center; color: var(--primary); margin: 0 0 10px 0; font-size: 22px; }
-        
         .tabs { display: flex; gap: 5px; border-bottom: 2px solid #eee; margin-bottom: 10px; }
         .tab-link { padding: 10px 25px; cursor: pointer; border: none; background: none; font-size: 15px; font-weight: 600; color: var(--gray); border-bottom: 3px solid transparent; transition: 0.3s; }
         .tab-link.active { color: var(--primary); border-bottom-color: var(--primary); }
-        
         .tab-content { display: none; animation: fadeIn 0.4s; }
         .tab-content.active { display: block; }
 
-        /* TOOLBAR CỐ ĐỊNH TRONG TỪNG TAB */
         .toolbar { 
             display: flex; gap: 12px; background: var(--light-bg); padding: 10px 15px; 
             border-radius: 8px; margin-bottom: 15px; align-items: center; 
@@ -37,33 +24,25 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         
-        .week-picker-btn { background: white; border: 1px solid #ccc; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; min-width: 230px; }
+        /* Style cho Combobox chọn tuần */
+        .week-select { padding: 8px 12px; border-radius: 4px; border: 1px solid #ccc; font-weight: 600; font-family: inherit; color: #333; cursor: pointer; min-width: 250px; }
         
-        /* CALENDAR */
-        #calendar-dropdown { 
-            display: none; position: absolute; top: 105%; left: 15px; z-index: 1001; 
-            background: white; border: 1px solid #ddd; box-shadow: 0 10px 25px rgba(0,0,0,0.15); 
-            padding: 15px; border-radius: 8px; width: 300px;
-        }
+        #calendar-dropdown { display: none; position: absolute; top: 105%; left: 15px; z-index: 1001; background: white; border: 1px solid #ddd; box-shadow: 0 10px 25px rgba(0,0,0,0.15); padding: 15px; border-radius: 8px; width: 300px; }
         .cal-table { width: 100%; text-align: center; border-collapse: collapse; }
         .cal-table td { padding: 8px 3px; cursor: pointer; border-radius: 4px; font-size: 13px; }
         .cal-table tr.selected-week td { background-color: var(--primary) !important; color: white !important; font-weight: bold; }
 
-        /* INPUT GRID */
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 15px; }
         .card { border: 1px solid #ddd; border-radius: 8px; padding: 12px; background: #fff; }
         .card h2 { margin: 0 0 10px 0; font-size: 16px; color: #d93025; border-left: 4px solid #d93025; padding-left: 10px; }
         .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         textarea { width: 100%; height: 120px; padding: 8px; border: 1px solid #dadce0; border-radius: 4px; resize: vertical; box-sizing: border-box; font-family: inherit; font-size: 13.5px; }
 
-        /* NÚT BẤM */
         button { border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; padding: 8px 16px; display: flex; align-items: center; gap: 6px; font-size: 14px; }
         .btn-save { background: var(--secondary); color: white; margin-left: auto; }
         .btn-agg { background: var(--primary); color: white; }
         .btn-word { background: #2b579a; color: white; }
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
-
-        /* VÙNG XEM TRƯỚC BÁO CÁO */
+        
         .summary-preview { background: #fff; border: 1px solid #ccc; padding: 40px; margin-top: 5px; min-height: 500px; }
         .preview-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .preview-table th, .preview-table td { border: 1px solid black; padding: 12px; text-align: left; vertical-align: top; font-size: 15px; line-height: 1.6; color: #000; }
@@ -86,9 +65,10 @@
     <div id="input-tab" class="tab-content active">
         <div class="toolbar">
             <strong>Thời gian:</strong>
-            <button class="week-picker-btn" id="btn-open-calendar">
-                📅 <span id="selected-week-text">Vui lòng chọn tuần...</span>
-            </button>
+            
+            <select id="week-select-box" class="week-select"></select>
+
+            <button onclick="toggleCalendar(event)" style="background:#fff; border:1px solid #ccc; padding:8px;">📅</button>
 
             <div id="calendar-dropdown">
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
@@ -150,22 +130,14 @@
             <select id="view-y" style="padding: 6px; border-radius:4px;">
                 <script>for(let i=2025;i<=2040;i++) document.write(`<option value="${i}">Năm ${i}</option>`)</script>
             </select>
-            
             <button class="btn-agg" id="aggMonthBtn">🔍 Tổng hợp tháng</button>
             <button class="btn-word" onclick="exportToWord()">📝 Xuất File Word</button>
         </div>
-
         <div id="capture-area" class="summary-preview">
             <h2 style="text-align: center; margin: 0; font-family: 'Times New Roman';">BÁO CÁO CÔNG TÁC</h2>
             <p style="text-align: center; font-style: italic; margin: 10px 0 30px 0; font-family: 'Times New Roman'; font-size: 18px;" id="out-time"></p>
             <table class="preview-table">
-                <thead>
-                    <tr>
-                        <th style="width: 15%;">Đơn vị</th>
-                        <th style="width: 42%;">Kết quả đạt được</th>
-                        <th style="width: 42%;">Phương hướng nhiệm vụ</th>
-                    </tr>
-                </thead>
+                <thead><tr><th style="width: 15%;">Đơn vị</th><th style="width: 42%;">Kết quả đạt được</th><th style="width: 42%;">Phương hướng nhiệm vụ</th></tr></thead>
                 <tbody id="out-body"></tbody>
             </table>
         </div>
@@ -192,6 +164,71 @@
     let currentViewDate = new Date();
     const fields = ['mttq-kq', 'mttq-ph', 'dtn-kq', 'dtn-ph', 'ccb-kq', 'ccb-ph', 'pn-kq', 'pn-ph'];
 
+    // --- LOGIC CHỌN TUẦN ---
+    
+    function getWeekData(date) {
+        let d = new Date(date);
+        d.setHours(0,0,0,0);
+        d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+        let yearStart = new Date(d.getFullYear(), 0, 1);
+        let weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        
+        let monday = new Date(d);
+        monday.setDate(monday.getDate() - 3);
+        let sunday = new Date(monday);
+        sunday.setDate(sunday.getDate() + 6);
+        
+        return { weekNo, monday, sunday, year: d.getFullYear() };
+    }
+
+    function initWeekSelect() {
+        const select = document.getElementById('week-select-box');
+        const now = new Date();
+        const currentData = getWeekData(now);
+        
+        let startOfYear = new Date(now.getFullYear(), 0, 1);
+        let weekDate = new Date(startOfYear);
+        // Chỉnh về thứ 2 đầu tiên của năm
+        weekDate.setDate(weekDate.getDate() + (weekDate.getDay() === 1 ? 0 : (8 - weekDate.getDay()) % 7));
+
+        for (let i = 1; i <= 53; i++) {
+            let data = getWeekData(weekDate);
+            if (data.year > now.getFullYear()) break;
+            
+            let option = document.createElement('option');
+            option.value = JSON.stringify(data);
+            option.text = `Tuần ${data.weekNo} (${data.monday.getDate()}/${data.monday.getMonth()+1} - ${data.sunday.getDate()}/${data.sunday.getMonth()+1})`;
+            
+            if (data.weekNo === currentData.weekNo) option.selected = true;
+            select.appendChild(option);
+            
+            weekDate.setDate(weekDate.getDate() + 7);
+        }
+
+        // Tự động load tuần hiện tại khi mở trang
+        handleWeekChange(select.value);
+    }
+
+    function handleWeekChange(value) {
+        const data = JSON.parse(value);
+        const d1 = new Date(data.monday);
+        const d2 = new Date(data.sunday);
+        
+        document.getElementById('w').value = data.weekNo;
+        document.getElementById('m').value = String(d1.getMonth() + 1).padStart(2, '0');
+        document.getElementById('y').value = data.year;
+        document.getElementById('date-from').value = d1.toISOString().split('T')[0];
+        document.getElementById('date-to').value = d2.toISOString().split('T')[0];
+        
+        currentViewDate = d1;
+        renderCalendar();
+        loadCurrentWeekData();
+    }
+
+    document.getElementById('week-select-box').onchange = (e) => handleWeekChange(e.target.value);
+
+    // --- CÁC HÀM CŨ ---
+
     window.changeMonth = (offset) => {
         currentViewDate.setMonth(currentViewDate.getMonth() + offset);
         renderCalendar();
@@ -207,12 +244,15 @@
         let diff = (startDay.getDay() === 0 ? 6 : startDay.getDay() - 1); 
         startDay.setDate(startDay.getDate() - diff);
         let html = '';
+        const selectedW = document.getElementById('w').value;
         for (let i = 0; i < 6; i++) {
             let rowDate = new Date(startDay);
             const janFirst = new Date(rowDate.getFullYear(), 0, 1);
             const days = Math.floor((rowDate - janFirst) / 86400000);
             const weekNum = Math.ceil((days + janFirst.getDay() + 1) / 7);
-            html += `<tr onclick="selectWeek(this, '${rowDate.toISOString()}')">`;
+            
+            let isSelected = (weekNum == selectedW && rowDate.getFullYear() == document.getElementById('y').value);
+            html += `<tr class="${isSelected ? 'selected-week' : ''}" onclick="selectWeek(this, '${rowDate.toISOString()}')">`;
             html += `<td style="color:#999; font-size:11px; border-right:1px solid #eee;">${weekNum}</td>`;
             for (let j = 0; j < 7; j++) {
                 const isOtherMonth = startDay.getMonth() !== month;
@@ -226,18 +266,20 @@
     }
 
     window.selectWeek = async (row, startDateStr) => {
-        document.querySelectorAll('.cal-table tr').forEach(r => r.classList.remove('selected-week'));
-        row.classList.add('selected-week');
         let d1 = new Date(startDateStr);
-        let d2 = new Date(startDateStr); d2.setDate(d2.getDate() + 6);
-        document.getElementById('w').value = row.cells[0].innerText;
-        document.getElementById('m').value = String(d1.getMonth() + 1).padStart(2, '0');
-        document.getElementById('y').value = d1.getFullYear();
-        document.getElementById('date-from').value = d1.toISOString().split('T')[0];
-        document.getElementById('date-to').value = d2.toISOString().split('T')[0];
-        document.getElementById('selected-week-text').innerText = `Tuần ${row.cells[0].innerText} (${d1.getDate()}/${d1.getMonth()+1} - ${d2.getDate()}/${d2.getMonth()+1})`;
+        let weekInfo = getWeekData(d1);
+        
+        // Cập nhật Combobox
+        const select = document.getElementById('week-select-box');
+        for(let opt of select.options){
+            let val = JSON.parse(opt.value);
+            if(val.weekNo == weekInfo.weekNo) {
+                opt.selected = true;
+                handleWeekChange(opt.value);
+                break;
+            }
+        }
         document.getElementById('calendar-dropdown').style.display = 'none';
-        loadCurrentWeekData();
     };
 
     async function loadCurrentWeekData() {
@@ -257,7 +299,7 @@
 
     document.getElementById('saveBtn').onclick = async () => {
         const w = document.getElementById('w').value, y = document.getElementById('y').value;
-        if(!w) { alert("Vui lòng chọn tuần!"); return; }
+        if(!w) return;
         const data = {
             monthRef: document.getElementById('m').value,
             dateFrom: document.getElementById('date-from').value,
@@ -278,9 +320,7 @@
         if (!snap.exists()) { alert("Không có dữ liệu!"); return; }
         const all = snap.val();
         let agg = { mttq:{kq:'',ph:''}, dtn:{kq:'',ph:''}, ccb:{kq:'',ph:''}, pn:{kq:'',ph:''} };
-        
         const weeksInMonth = Object.keys(all).filter(k => all[k].monthRef === mm).sort((a,b)=>parseInt(a.split('_')[1])-parseInt(b.split('_')[1]));
-        
         weeksInMonth.forEach(k => {
             const d = all[k], n = k.split('_')[1];
             const range = ` (Từ ${d.dateFrom.split('-').reverse().slice(0,2).join('/')} đến ${d.dateTo.split('-').reverse().slice(0,2).join('/')})`;
@@ -297,10 +337,13 @@
             <tr><td><b>Hội Phụ Nữ</b></td><td>${agg.pn.kq}</td><td>${agg.pn.ph}</td></tr>`;
     };
 
-    renderCalendar();
-    document.getElementById('btn-open-calendar').onclick = (e) => {
+    // Khởi tạo combobox khi tải trang
+    initWeekSelect();
+
+    window.toggleCalendar = (e) => {
         const cal = document.getElementById('calendar-dropdown');
-        cal.style.display = cal.style.display === 'none' ? 'block' : 'none'; e.stopPropagation();
+        cal.style.display = cal.style.display === 'none' ? 'block' : 'none';
+        e.stopPropagation();
     };
     window.onclick = () => document.getElementById('calendar-dropdown').style.display = 'none';
     document.getElementById('calendar-dropdown').onclick = (e) => e.stopPropagation();
