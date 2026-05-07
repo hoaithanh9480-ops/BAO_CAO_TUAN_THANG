@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Báo Cáo Công Tác</title>
+    <style>
+        :root { --primary: #1a73e8; --secondary: #34a853; --danger: #ea4335; --gray: #5f6368; --light-bg: #e8f0fe; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; margin: 0; padding: 10px; }
+        .container { max-width: 1250px; margin: auto; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); min-height: 95vh; }
+        
+        /* HEADER CỐ ĐỊNH */
+        .header-fixed {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1000;
+            padding: 15px 15px 5px 15px;
+            margin: -15px -15px 10px -15px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        h1 { text-align: center; color: var(--primary); margin: 0 0 10px 0; font-size: 22px; }
+        
+        .tabs { display: flex; gap: 5px; border-bottom: 2px solid #eee; margin-bottom: 10px; }
+        .tab-link { padding: 10px 25px; cursor: pointer; border: none; background: none; font-size: 15px; font-weight: 600; color: var(--gray); border-bottom: 3px solid transparent; transition: 0.3s; }
+        .tab-link.active { color: var(--primary); border-bottom-color: var(--primary); }
+        
+        .tab-content { display: none; animation: fadeIn 0.4s; }
+        .tab-content.active { display: block; }
+
+        /* TOOLBAR CỐ ĐỊNH TRONG TỪNG TAB */
+        .toolbar { 
+            display: flex; gap: 12px; background: var(--light-bg); padding: 10px 15px; 
+            border-radius: 8px; margin-bottom: 15px; align-items: center; 
+            position: sticky; top: 105px; z-index: 999; border: 1px solid #d1e3ff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .week-picker-btn { background: white; border: 1px solid #ccc; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px; min-width: 230px; }
+        
+        /* CALENDAR */
+        #calendar-dropdown { 
+            display: none; position: absolute; top: 105%; left: 15px; z-index: 1001; 
+            background: white; border: 1px solid #ddd; box-shadow: 0 10px 25px rgba(0,0,0,0.15); 
+            padding: 15px; border-radius: 8px; width: 300px;
+        }
+        .cal-table { width: 100%; text-align: center; border-collapse: collapse; }
+        .cal-table td { padding: 8px 3px; cursor: pointer; border-radius: 4px; font-size: 13px; }
+        .cal-table tr.selected-week td { background-color: var(--primary) !important; color: white !important; font-weight: bold; }
+
+        /* INPUT GRID */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 15px; }
+        .card { border: 1px solid #ddd; border-radius: 8px; padding: 12px; background: #fff; }
+        .card h2 { margin: 0 0 10px 0; font-size: 16px; color: #d93025; border-left: 4px solid #d93025; padding-left: 10px; }
+        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        textarea { width: 100%; height: 120px; padding: 8px; border: 1px solid #dadce0; border-radius: 4px; resize: vertical; box-sizing: border-box; font-family: inherit; font-size: 13.5px; }
+
+        /* NÚT BẤM */
+        button { border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s; padding: 8px 16px; display: flex; align-items: center; gap: 6px; font-size: 14px; }
+        .btn-save { background: var(--secondary); color: white; margin-left: auto; }
+        .btn-agg { background: var(--primary); color: white; }
+        .btn-word { background: #2b579a; color: white; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* VÙNG XEM TRƯỚC BÁO CÁO */
+        .summary-preview { background: #fff; border: 1px solid #ccc; padding: 40px; margin-top: 5px; min-height: 500px; }
+        .preview-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .preview-table th, .preview-table td { border: 1px solid black; padding: 12px; text-align: left; vertical-align: top; font-size: 15px; line-height: 1.6; color: #000; }
+        .preview-table th { background: #f2f2f2; font-weight: bold; text-align: center; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-fixed">
+        <h1>Hệ Thống Quản Lý Báo Cáo</h1>
+        <div class="tabs">
+            <button class="tab-link active" onclick="openTab(event, 'input-tab')">📍 Nhập dữ liệu Tuần</button>
+            <button class="tab-link" onclick="openTab(event, 'summary-tab')">📊 Tổng hợp Tháng/Năm</button>
+        </div>
+    </div>
+
+    <div id="input-tab" class="tab-content active">
+        <div class="toolbar">
+            <strong>Thời gian:</strong>
+            <button class="week-picker-btn" id="btn-open-calendar">
+                📅 <span id="selected-week-text">Vui lòng chọn tuần...</span>
+            </button>
+
+            <div id="calendar-dropdown">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <button onclick="changeMonth(-1)">◀</button>
+                    <b id="cal-month-year">Tháng 05/2026</b>
+                    <button onclick="changeMonth(1)">▶</button>
+                </div>
+                <table class="cal-table">
+                    <thead><tr><th>T.</th><th>H</th><th>B</th><th>T</th><th>N</th><th>S</th><th>B</th><th>C</th></tr></thead>
+                    <tbody id="cal-body"></tbody>
+                </table>
+            </div>
+
+            <span id="load-status" style="color: var(--gray); font-style: italic; font-size: 12px;"></span>
+            <button class="btn-save" id="saveBtn">💾 Lưu Lên Hệ Thống</button>
+
+            <input type="hidden" id="w"> <input type="hidden" id="m"> <input type="hidden" id="y">
+            <input type="hidden" id="date-from"> <input type="hidden" id="date-to">
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h2>1. Mặt trận Tổ quốc (MTTQ)</h2>
+                <div class="input-group">
+                    <div><label style="font-size:12px; font-weight:bold;">Kết quả:</label><textarea id="mttq-kq"></textarea></div>
+                    <div><label style="font-size:12px; font-weight:bold;">Phương hướng:</label><textarea id="mttq-ph"></textarea></div>
+                </div>
+            </div>
+            <div class="card">
+                <h2>2. Đoàn Thanh niên (ĐTN)</h2>
+                <div class="input-group">
+                    <div><label style="font-size:12px; font-weight:bold;">Kết quả:</label><textarea id="dtn-kq"></textarea></div>
+                    <div><label style="font-size:12px; font-weight:bold;">Phương hướng:</label><textarea id="dtn-ph"></textarea></div>
+                </div>
+            </div>
+            <div class="card">
+                <h2>3. Cựu chiến binh (CCB)</h2>
+                <div class="input-group">
+                    <div><label style="font-size:12px; font-weight:bold;">Kết quả:</label><textarea id="ccb-kq"></textarea></div>
+                    <div><label style="font-size:12px; font-weight:bold;">Phương hướng:</label><textarea id="ccb-ph"></textarea></div>
+                </div>
+            </div>
+            <div class="card">
+                <h2>4. Hội Phụ nữ</h2>
+                <div class="input-group">
+                    <div><label style="font-size:12px; font-weight:bold;">Kết quả:</label><textarea id="pn-kq"></textarea></div>
+                    <div><label style="font-size:12px; font-weight:bold;">Phương hướng:</label><textarea id="pn-ph"></textarea></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="summary-tab" class="tab-content">
+        <div class="toolbar">
+            <strong>Xem theo:</strong>
+            <select id="view-m" style="padding: 6px; border-radius:4px;">
+                <script>for(let i=1;i<=12;i++) document.write(`<option value="${String(i).padStart(2,'0')}">Tháng ${i}</option>`)</script>
+            </select>
+            <select id="view-y" style="padding: 6px; border-radius:4px;">
+                <script>for(let i=2025;i<=2040;i++) document.write(`<option value="${i}">Năm ${i}</option>`)</script>
+            </select>
+            
+            <button class="btn-agg" id="aggMonthBtn">🔍 Tổng hợp tháng</button>
+            <button class="btn-word" onclick="exportToWord()">📝 Xuất File Word</button>
+        </div>
+
+        <div id="capture-area" class="summary-preview">
+            <h2 style="text-align: center; margin: 0; font-family: 'Times New Roman';">BÁO CÁO CÔNG TÁC</h2>
+            <p style="text-align: center; font-style: italic; margin: 10px 0 30px 0; font-family: 'Times New Roman'; font-size: 18px;" id="out-time"></p>
+            <table class="preview-table">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">Đơn vị</th>
+                        <th style="width: 42%;">Kết quả đạt được</th>
+                        <th style="width: 42%;">Phương hướng nhiệm vụ</th>
+                    </tr>
+                </thead>
+                <tbody id="out-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyApVwM5YKc86cFXU4p-n8NO8f5wRKyzEUQ",
+        authDomain: "bao-cao-tuan-thang.firebaseapp.com",
+        databaseURL: "https://bao-cao-tuan-thang-default-rtdb.firebaseio.com",
+        projectId: "bao-cao-tuan-thang",
+        storageBucket: "bao-cao-tuan-thang.firebasestorage.app",
+        messagingSenderId: "481940887281",
+        appId: "1:481940887281:web:a5fb423655b4361f2dbb50"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let currentViewDate = new Date();
+    const fields = ['mttq-kq', 'mttq-ph', 'dtn-kq', 'dtn-ph', 'ccb-kq', 'ccb-ph', 'pn-kq', 'pn-ph'];
+
+    window.changeMonth = (offset) => {
+        currentViewDate.setMonth(currentViewDate.getMonth() + offset);
+        renderCalendar();
+    };
+
+    function renderCalendar() {
+        const year = currentViewDate.getFullYear();
+        const month = currentViewDate.getMonth();
+        document.getElementById('cal-month-year').innerText = `Tháng ${month + 1}/${year}`;
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        let startDay = new Date(firstDay);
+        let diff = (startDay.getDay() === 0 ? 6 : startDay.getDay() - 1); 
+        startDay.setDate(startDay.getDate() - diff);
+        let html = '';
+        for (let i = 0; i < 6; i++) {
+            let rowDate = new Date(startDay);
+            const janFirst = new Date(rowDate.getFullYear(), 0, 1);
+            const days = Math.floor((rowDate - janFirst) / 86400000);
+            const weekNum = Math.ceil((days + janFirst.getDay() + 1) / 7);
+            html += `<tr onclick="selectWeek(this, '${rowDate.toISOString()}')">`;
+            html += `<td style="color:#999; font-size:11px; border-right:1px solid #eee;">${weekNum}</td>`;
+            for (let j = 0; j < 7; j++) {
+                const isOtherMonth = startDay.getMonth() !== month;
+                html += `<td style="${isOtherMonth ? 'color:#ccc':'' }">${startDay.getDate()}</td>`;
+                startDay.setDate(startDay.getDate() + 1);
+            }
+            html += '</tr>';
+            if (startDay > lastDay && i >= 3) break;
+        }
+        document.getElementById('cal-body').innerHTML = html;
+    }
+
+    window.selectWeek = async (row, startDateStr) => {
+        document.querySelectorAll('.cal-table tr').forEach(r => r.classList.remove('selected-week'));
+        row.classList.add('selected-week');
+        let d1 = new Date(startDateStr);
+        let d2 = new Date(startDateStr); d2.setDate(d2.getDate() + 6);
+        document.getElementById('w').value = row.cells[0].innerText;
+        document.getElementById('m').value = String(d1.getMonth() + 1).padStart(2, '0');
+        document.getElementById('y').value = d1.getFullYear();
+        document.getElementById('date-from').value = d1.toISOString().split('T')[0];
+        document.getElementById('date-to').value = d2.toISOString().split('T')[0];
+        document.getElementById('selected-week-text').innerText = `Tuần ${row.cells[0].innerText} (${d1.getDate()}/${d1.getMonth()+1} - ${d2.getDate()}/${d2.getMonth()+1})`;
+        document.getElementById('calendar-dropdown').style.display = 'none';
+        loadCurrentWeekData();
+    };
+
+    async function loadCurrentWeekData() {
+        const y = document.getElementById('y').value, w = document.getElementById('w').value;
+        const path = `reports/${y}/week_${w}`; 
+        document.getElementById('load-status').innerText = "⌛ Đang tải...";
+        const snap = await get(ref(db, path));
+        if (snap.exists()) {
+            const data = snap.val();
+            fields.forEach(f => { const [org, type] = f.split('-'); document.getElementById(f).value = data[org]?.[type] || ""; });
+            document.getElementById('load-status').innerText = "✅ Đã tải dữ liệu.";
+        } else {
+            fields.forEach(id => document.getElementById(id).value = "");
+            document.getElementById('load-status').innerText = "✨ Tuần mới.";
+        }
+    }
+
+    document.getElementById('saveBtn').onclick = async () => {
+        const w = document.getElementById('w').value, y = document.getElementById('y').value;
+        if(!w) { alert("Vui lòng chọn tuần!"); return; }
+        const data = {
+            monthRef: document.getElementById('m').value,
+            dateFrom: document.getElementById('date-from').value,
+            dateTo: document.getElementById('date-to').value,
+            mttq: { kq: document.getElementById('mttq-kq').value, ph: document.getElementById('mttq-ph').value },
+            dtn: { kq: document.getElementById('dtn-kq').value, ph: document.getElementById('dtn-ph').value },
+            ccb: { kq: document.getElementById('ccb-kq').value, ph: document.getElementById('ccb-ph').value },
+            pn: { kq: document.getElementById('pn-kq').value, ph: document.getElementById('pn-ph').value },
+            lastUpdate: new Date().toLocaleString()
+        };
+        await set(ref(db, `reports/${y}/week_${w}`), data);
+        alert("✅ Đã lưu thành công!");
+    };
+
+    document.getElementById('aggMonthBtn').onclick = async () => {
+        const mm = document.getElementById('view-m').value, yy = document.getElementById('view-y').value;
+        const snap = await get(ref(db, `reports/${yy}`));
+        if (!snap.exists()) { alert("Không có dữ liệu!"); return; }
+        const all = snap.val();
+        let agg = { mttq:{kq:'',ph:''}, dtn:{kq:'',ph:''}, ccb:{kq:'',ph:''}, pn:{kq:'',ph:''} };
+        
+        const weeksInMonth = Object.keys(all).filter(k => all[k].monthRef === mm).sort((a,b)=>parseInt(a.split('_')[1])-parseInt(b.split('_')[1]));
+        
+        weeksInMonth.forEach(k => {
+            const d = all[k], n = k.split('_')[1];
+            const range = ` (Từ ${d.dateFrom.split('-').reverse().slice(0,2).join('/')} đến ${d.dateTo.split('-').reverse().slice(0,2).join('/')})`;
+            ['mttq','dtn','ccb','pn'].forEach(o => {
+                if(d[o]?.kq) agg[o].kq += `<div style="margin-bottom:12px;"><b>Tuần ${n}${range}:</b><br>${d[o].kq.replace(/\n/g,'<br>')}</div>`;
+                if(d[o]?.ph) agg[o].ph += `<div style="margin-bottom:12px;"><b>Hướng Tuần ${parseInt(n)+1}:</b><br>${d[o].ph.replace(/\n/g,'<br>')}</div>`;
+            });
+        });
+        document.getElementById('out-time').innerText = `Tháng ${mm} Năm ${yy}`;
+        document.getElementById('out-body').innerHTML = `
+            <tr><td><b>MTTQ</b></td><td>${agg.mttq.kq}</td><td>${agg.mttq.ph}</td></tr>
+            <tr><td><b>Đoàn TN</b></td><td>${agg.dtn.kq}</td><td>${agg.dtn.ph}</td></tr>
+            <tr><td><b>CCB</b></td><td>${agg.ccb.kq}</td><td>${agg.ccb.ph}</td></tr>
+            <tr><td><b>Hội Phụ Nữ</b></td><td>${agg.pn.kq}</td><td>${agg.pn.ph}</td></tr>`;
+    };
+
+    renderCalendar();
+    document.getElementById('btn-open-calendar').onclick = (e) => {
+        const cal = document.getElementById('calendar-dropdown');
+        cal.style.display = cal.style.display === 'none' ? 'block' : 'none'; e.stopPropagation();
+    };
+    window.onclick = () => document.getElementById('calendar-dropdown').style.display = 'none';
+    document.getElementById('calendar-dropdown').onclick = (e) => e.stopPropagation();
+</script>
+
+<script>
+    function openTab(evt, name) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+        document.getElementById(name).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+
+    function exportToWord() {
+        const content = document.getElementById('capture-area').innerHTML;
+        const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='utf-8'><style>
+            table {border-collapse:collapse; width:100%; font-family: "Times New Roman", Times, serif;} 
+            th, td {border:1px solid black; padding:10px; vertical-align: top;} 
+            h2 {font-size: 16pt; text-align: center; margin: 0;}
+            p {font-size: 12pt; margin: 5px 0;}
+            b {font-weight: bold;}
+        </style></head><body>`;
+        const footer = "</body></html>";
+        const blob = new Blob(['\ufeff', header + content + footer], { type: 'application/msword' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Bao_Cao_Tong_Hop_${document.getElementById('view-m').value}_${document.getElementById('view-y').value}.doc`;
+        link.click();
+    }
+</script>
+
+</body>
+</html>
