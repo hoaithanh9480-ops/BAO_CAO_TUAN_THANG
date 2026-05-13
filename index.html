@@ -24,9 +24,9 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         
-        /* Style cho Combobox chọn tuần */
         .week-select { padding: 8px 12px; border-radius: 4px; border: 1px solid #ccc; font-weight: 600; font-family: inherit; color: #333; cursor: pointer; min-width: 250px; }
-        
+        select, input[type="number"] { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+
         #calendar-dropdown { display: none; position: absolute; top: 105%; left: 15px; z-index: 1001; background: white; border: 1px solid #ddd; box-shadow: 0 10px 25px rgba(0,0,0,0.15); padding: 15px; border-radius: 8px; width: 300px; }
         .cal-table { width: 100%; text-align: center; border-collapse: collapse; }
         .cal-table td { padding: 8px 3px; cursor: pointer; border-radius: 4px; font-size: 13px; }
@@ -45,7 +45,7 @@
         
         .summary-preview { background: #fff; border: 1px solid #ccc; padding: 40px; margin-top: 5px; min-height: 500px; }
         .preview-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .preview-table th, .preview-table td { border: 1px solid black; padding: 12px; text-align: left; vertical-align: top; font-size: 15px; line-height: 1.6; color: #000; }
+        .preview-table th, .preview-table td { border: 1px solid black; padding: 12px; text-align: left; vertical-align: top; font-size: 15px; line-height: 1.6; color: #000; font-family: "Times New Roman", Times, serif; }
         .preview-table th { background: #f2f2f2; font-weight: bold; text-align: center; }
         
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -55,19 +55,17 @@
 
 <div class="container">
     <div class="header-fixed">
-        <h1>Hệ Thống Quản Lý Báo Cáo Tuần/Tháng</h1>
+        <h1>Hệ Thống Quản Lý Báo Cáo Tuần/Tháng/Năm</h1>
         <div class="tabs">
             <button class="tab-link active" onclick="openTab(event, 'input-tab')">📍 Nhập dữ liệu Tuần</button>
-            <button class="tab-link" onclick="openTab(event, 'summary-tab')">📊 Tổng hợp Tháng/Năm</button>
+            <button class="tab-link" onclick="openTab(event, 'summary-tab')">📊 Tổng hợp Báo cáo</button>
         </div>
     </div>
 
     <div id="input-tab" class="tab-content active">
         <div class="toolbar">
             <strong>Thời gian:</strong>
-            
             <select id="week-select-box" class="week-select"></select>
-
             <button onclick="toggleCalendar(event)" style="background:#fff; border:1px solid #ccc; padding:8px;">📅</button>
 
             <div id="calendar-dropdown">
@@ -84,9 +82,7 @@
 
             <span id="load-status" style="color: var(--gray); font-style: italic; font-size: 12px;"></span>
             <button class="btn-save" id="saveBtn">💾 Lưu Lên Hệ Thống</button>
-            <span style="color: red; font-weight: bold; margin-left: 10px;">
-                Nhớ bấm lưu khi có dữ liệu
-            </span>
+            <span style="color: red; font-weight: bold; margin-left: 10px;">Nhớ bấm lưu khi có dữ liệu</span>
 
             <input type="hidden" id="w"> <input type="hidden" id="m"> <input type="hidden" id="y">
             <input type="hidden" id="date-from"> <input type="hidden" id="date-to">
@@ -127,21 +123,42 @@
     <div id="summary-tab" class="tab-content">
         <div class="toolbar">
             <strong>Xem theo:</strong>
-            <select id="view-m" style="padding: 6px; border-radius:4px;">
+            <select id="view-type" onchange="toggleViewInputs()">
+                <option value="week">Tuần cụ thể</option>
+                <option value="month" selected>Tổng hợp Tháng</option>
+                <option value="year">Tổng hợp Năm</option>
+            </select>
+
+            <span id="input-week-group" style="display:none;">
+                Tuần: <input type="number" id="view-w" min="1" max="53" style="width:60px;">
+            </span>
+
+            <select id="view-m">
                 <script>for(let i=1;i<=12;i++) document.write(`<option value="${String(i).padStart(2,'0')}">Tháng ${i}</option>`)</script>
             </select>
-            <select id="view-y" style="padding: 6px; border-radius:4px;">
+
+            <select id="view-y">
                 <script>for(let i=2025;i<=2040;i++) document.write(`<option value="${i}">Năm ${i}</option>`)</script>
             </select>
-            <button class="btn-agg" id="aggMonthBtn">🔍 Tổng hợp tháng</button>
+
+            <button class="btn-agg" id="aggBtn">🔍 Tổng hợp dữ liệu</button>
             <button class="btn-word" onclick="exportToWord()">📝 Xuất File Word</button>
         </div>
+
         <div id="capture-area" class="summary-preview">
             <h2 style="text-align: center; margin: 0; font-family: 'Times New Roman';">BÁO CÁO CÔNG TÁC</h2>
             <p style="text-align: center; font-style: italic; margin: 10px 0 30px 0; font-family: 'Times New Roman'; font-size: 18px;" id="out-time"></p>
             <table class="preview-table">
-                <thead><tr><th style="width: 15%;">Đơn vị</th><th style="width: 42%;">Kết quả đạt được</th><th style="width: 42%;">Phương hướng nhiệm vụ</th></tr></thead>
-                <tbody id="out-body"></tbody>
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">Đơn vị</th>
+                        <th style="width: 42%;">Kết quả đạt được</th>
+                        <th style="width: 42%;">Phương hướng nhiệm vụ</th>
+                    </tr>
+                </thead>
+                <tbody id="out-body">
+                    <tr><td colspan="3" style="text-align:center; color:gray;">Chưa có dữ liệu. Vui lòng chọn thời gian và bấm Tổng hợp.</td></tr>
+                </tbody>
             </table>
         </div>
     </div>
@@ -168,19 +185,14 @@
     const fields = ['mttq-kq', 'mttq-ph', 'dtn-kq', 'dtn-ph', 'ccb-kq', 'ccb-ph', 'pn-kq', 'pn-ph'];
 
     // --- LOGIC CHỌN TUẦN ---
-    
     function getWeekData(date) {
         let d = new Date(date);
         d.setHours(0,0,0,0);
         d.setDate(d.getDate() + 4 - (d.getDay() || 7));
         let yearStart = new Date(d.getFullYear(), 0, 1);
         let weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-        
-        let monday = new Date(d);
-        monday.setDate(monday.getDate() - 3);
-        let sunday = new Date(monday);
-        sunday.setDate(sunday.getDate() + 6);
-        
+        let monday = new Date(d); monday.setDate(monday.getDate() - 3);
+        let sunday = new Date(monday); sunday.setDate(sunday.getDate() + 6);
         return { weekNo, monday, sunday, year: d.getFullYear() };
     }
 
@@ -188,112 +200,77 @@
         const select = document.getElementById('week-select-box');
         const now = new Date();
         const currentData = getWeekData(now);
-        
-        let startOfYear = new Date(now.getFullYear(), 0, 1);
-        let weekDate = new Date(startOfYear);
-        // Chỉnh về thứ 2 đầu tiên của năm
+        let weekDate = new Date(now.getFullYear(), 0, 1);
         weekDate.setDate(weekDate.getDate() + (weekDate.getDay() === 1 ? 0 : (8 - weekDate.getDay()) % 7));
 
         for (let i = 1; i <= 53; i++) {
             let data = getWeekData(weekDate);
             if (data.year > now.getFullYear()) break;
-            
             let option = document.createElement('option');
             option.value = JSON.stringify(data);
             option.text = `Tuần ${data.weekNo} (${data.monday.getDate()}/${data.monday.getMonth()+1} - ${data.sunday.getDate()}/${data.sunday.getMonth()+1})`;
-            
             if (data.weekNo === currentData.weekNo) option.selected = true;
             select.appendChild(option);
-            
             weekDate.setDate(weekDate.getDate() + 7);
         }
-
-        // Tự động load tuần hiện tại khi mở trang
         handleWeekChange(select.value);
     }
 
     function handleWeekChange(value) {
         const data = JSON.parse(value);
-        const d1 = new Date(data.monday);
-        const d2 = new Date(data.sunday);
-        
         document.getElementById('w').value = data.weekNo;
-        document.getElementById('m').value = String(d1.getMonth() + 1).padStart(2, '0');
+        document.getElementById('m').value = String(new Date(data.monday).getMonth() + 1).padStart(2, '0');
         document.getElementById('y').value = data.year;
-        document.getElementById('date-from').value = d1.toISOString().split('T')[0];
-        document.getElementById('date-to').value = d2.toISOString().split('T')[0];
-        
-        currentViewDate = d1;
+        document.getElementById('date-from').value = new Date(data.monday).toISOString().split('T')[0];
+        document.getElementById('date-to').value = new Date(data.sunday).toISOString().split('T')[0];
+        currentViewDate = new Date(data.monday);
         renderCalendar();
         loadCurrentWeekData();
     }
 
     document.getElementById('week-select-box').onchange = (e) => handleWeekChange(e.target.value);
 
-    // --- CÁC HÀM CŨ ---
-
-    window.changeMonth = (offset) => {
-        currentViewDate.setMonth(currentViewDate.getMonth() + offset);
-        renderCalendar();
-    };
-
+    // --- LỊCH ---
+    window.changeMonth = (offset) => { currentViewDate.setMonth(currentViewDate.getMonth() + offset); renderCalendar(); };
     function renderCalendar() {
-        const year = currentViewDate.getFullYear();
-        const month = currentViewDate.getMonth();
+        const year = currentViewDate.getFullYear(); const month = currentViewDate.getMonth();
         document.getElementById('cal-month-year').innerText = `Tháng ${month + 1}/${year}`;
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        let startDay = new Date(firstDay);
-        let diff = (startDay.getDay() === 0 ? 6 : startDay.getDay() - 1); 
-        startDay.setDate(startDay.getDate() - diff);
-        let html = '';
-        const selectedW = document.getElementById('w').value;
+        let startDay = new Date(year, month, 1);
+        startDay.setDate(startDay.getDate() - (startDay.getDay() === 0 ? 6 : startDay.getDay() - 1));
+        let html = ''; const selectedW = document.getElementById('w').value;
         for (let i = 0; i < 6; i++) {
             let rowDate = new Date(startDay);
-            const janFirst = new Date(rowDate.getFullYear(), 0, 1);
-            const days = Math.floor((rowDate - janFirst) / 86400000);
-            const weekNum = Math.ceil((days + janFirst.getDay() + 1) / 7);
-            
+            let weekNum = getWeekData(rowDate).weekNo;
             let isSelected = (weekNum == selectedW && rowDate.getFullYear() == document.getElementById('y').value);
             html += `<tr class="${isSelected ? 'selected-week' : ''}" onclick="selectWeek(this, '${rowDate.toISOString()}')">`;
-            html += `<td style="color:#999; font-size:11px; border-right:1px solid #eee;">${weekNum}</td>`;
+            html += `<td style="color:#999; font-size:11px;">${weekNum}</td>`;
             for (let j = 0; j < 7; j++) {
-                const isOtherMonth = startDay.getMonth() !== month;
-                html += `<td style="${isOtherMonth ? 'color:#ccc':'' }">${startDay.getDate()}</td>`;
+                html += `<td style="${startDay.getMonth() !== month ? 'color:#ccc':''}">${startDay.getDate()}</td>`;
                 startDay.setDate(startDay.getDate() + 1);
             }
             html += '</tr>';
-            if (startDay > lastDay && i >= 3) break;
         }
         document.getElementById('cal-body').innerHTML = html;
     }
 
-    window.selectWeek = async (row, startDateStr) => {
-        let d1 = new Date(startDateStr);
-        let weekInfo = getWeekData(d1);
-        
-        // Cập nhật Combobox
+    window.selectWeek = (row, startDateStr) => {
+        let weekInfo = getWeekData(new Date(startDateStr));
         const select = document.getElementById('week-select-box');
         for(let opt of select.options){
-            let val = JSON.parse(opt.value);
-            if(val.weekNo == weekInfo.weekNo) {
-                opt.selected = true;
-                handleWeekChange(opt.value);
-                break;
-            }
+            if(JSON.parse(opt.value).weekNo == weekInfo.weekNo) { opt.selected = true; handleWeekChange(opt.value); break; }
         }
         document.getElementById('calendar-dropdown').style.display = 'none';
     };
 
+    // --- DATA ---
     async function loadCurrentWeekData() {
         const y = document.getElementById('y').value, w = document.getElementById('w').value;
-        const path = `reports/${y}/week_${w}`; 
         document.getElementById('load-status').innerText = "⌛ Đang tải...";
-        const snap = await get(ref(db, path));
+        const snap = await get(ref(db, `reports/${y}/week_${w}`));
         if (snap.exists()) {
             const data = snap.val();
             fields.forEach(f => { const [org, type] = f.split('-'); document.getElementById(f).value = data[org]?.[type] || ""; });
-            document.getElementById('load-status').innerText = "✅ Đã tải dữ liệu.";
+            document.getElementById('load-status').innerText = "✅ Đã tải.";
         } else {
             fields.forEach(id => document.getElementById(id).value = "");
             document.getElementById('load-status').innerText = "✨ Tuần mới.";
@@ -302,7 +279,6 @@
 
     document.getElementById('saveBtn').onclick = async () => {
         const w = document.getElementById('w').value, y = document.getElementById('y').value;
-        if(!w) return;
         const data = {
             monthRef: document.getElementById('m').value,
             dateFrom: document.getElementById('date-from').value,
@@ -310,46 +286,71 @@
             mttq: { kq: document.getElementById('mttq-kq').value, ph: document.getElementById('mttq-ph').value },
             dtn: { kq: document.getElementById('dtn-kq').value, ph: document.getElementById('dtn-ph').value },
             ccb: { kq: document.getElementById('ccb-kq').value, ph: document.getElementById('ccb-ph').value },
-            pn: { kq: document.getElementById('pn-kq').value, ph: document.getElementById('pn-ph').value },
-            lastUpdate: new Date().toLocaleString()
+            pn: { kq: document.getElementById('pn-kq').value, ph: document.getElementById('pn-ph').value }
         };
         await set(ref(db, `reports/${y}/week_${w}`), data);
-        alert("✅ Đã lưu thành công!");
+        alert("✅ Đã lưu!");
     };
 
-    document.getElementById('aggMonthBtn').onclick = async () => {
-        const mm = document.getElementById('view-m').value, yy = document.getElementById('view-y').value;
+    // --- TỔNG HỢP LINH HOẠT ---
+    window.toggleViewInputs = () => {
+        const type = document.getElementById('view-type').value;
+        document.getElementById('input-week-group').style.display = (type === 'week') ? 'inline' : 'none';
+        document.getElementById('view-m').style.display = (type === 'month') ? 'inline' : 'none';
+    };
+
+    document.getElementById('aggBtn').onclick = async () => {
+        const type = document.getElementById('view-type').value;
+        const yy = document.getElementById('view-y').value;
+        const mm = document.getElementById('view-m').value;
+        const ww = document.getElementById('view-w').value;
+
         const snap = await get(ref(db, `reports/${yy}`));
         if (!snap.exists()) { alert("Không có dữ liệu!"); return; }
+        
         const all = snap.val();
         let agg = { mttq:{kq:'',ph:''}, dtn:{kq:'',ph:''}, ccb:{kq:'',ph:''}, pn:{kq:'',ph:''} };
-        const weeksInMonth = Object.keys(all).filter(k => all[k].monthRef === mm).sort((a,b)=>parseInt(a.split('_')[1])-parseInt(b.split('_')[1]));
-        weeksInMonth.forEach(k => {
+        let targetWeeks = [];
+        let title = "";
+
+        if (type === 'week') {
+            targetWeeks = Object.keys(all).filter(k => k === `week_${ww}`);
+            title = `TUẦN ${ww} NĂM ${yy}`;
+        } else if (type === 'month') {
+            targetWeeks = Object.keys(all).filter(k => all[k].monthRef === mm);
+            title = `THÁNG ${mm} NĂM ${yy}`;
+        } else {
+            targetWeeks = Object.keys(all);
+            title = `NĂM ${yy}`;
+        }
+
+        if(targetWeeks.length === 0) { alert("Không thấy dữ liệu!"); return; }
+        targetWeeks.sort((a,b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1]));
+
+        targetWeeks.forEach(k => {
             const d = all[k], n = k.split('_')[1];
-            const range = ` (Từ ${d.dateFrom.split('-').reverse().slice(0,2).join('/')} đến ${d.dateTo.split('-').reverse().slice(0,2).join('/')})`;
+            const range = ` (Tuần ${n}: ${d.dateFrom.split('-').reverse().slice(0,2).join('/')}-${d.dateTo.split('-').reverse().slice(0,2).join('/')})`;
             ['mttq','dtn','ccb','pn'].forEach(o => {
-                if(d[o]?.kq) agg[o].kq += `<div style="margin-bottom:12px;"><b>Tuần ${n}${range}:</b><br>${d[o].kq.replace(/\n/g,'<br>')}</div>`;
-                if(d[o]?.ph) agg[o].ph += `<div style="margin-bottom:12px;"><b>Hướng Tuần ${parseInt(n)+1}:</b><br>${d[o].ph.replace(/\n/g,'<br>')}</div>`;
+                if(d[o]?.kq) agg[o].kq += `<div style="margin-bottom:10px;"><b>${range}:</b><br>${d[o].kq.replace(/\n/g,'<br>')}</div>`;
+                if(d[o]?.ph) agg[o].ph += `<div style="margin-bottom:10px;"><b>Kế hoạch:</b><br>${d[o].ph.replace(/\n/g,'<br>')}</div>`;
             });
         });
-        document.getElementById('out-time').innerText = `Tháng ${mm} Năm ${yy}`;
+
+        document.getElementById('out-time').innerText = title;
         document.getElementById('out-body').innerHTML = `
-            <tr><td><b>MTTQ</b></td><td>${agg.mttq.kq}</td><td>${agg.mttq.ph}</td></tr>
-            <tr><td><b>Đoàn TN</b></td><td>${agg.dtn.kq}</td><td>${agg.dtn.ph}</td></tr>
-            <tr><td><b>CCB</b></td><td>${agg.ccb.kq}</td><td>${agg.ccb.ph}</td></tr>
-            <tr><td><b>Hội Phụ Nữ</b></td><td>${agg.pn.kq}</td><td>${agg.pn.ph}</td></tr>`;
+            <tr><td><b>MTTQ</b></td><td>${agg.mttq.kq || '...'}</td><td>${agg.mttq.ph || '...'}</td></tr>
+            <tr><td><b>Đoàn TN</b></td><td>${agg.dtn.kq || '...'}</td><td>${agg.dtn.ph || '...'}</td></tr>
+            <tr><td><b>CCB</b></td><td>${agg.ccb.kq || '...'}</td><td>${agg.ccb.ph || '...'}</td></tr>
+            <tr><td><b>Phụ Nữ</b></td><td>${agg.pn.kq || '...'}</td><td>${agg.pn.ph || '...'}</td></tr>`;
     };
 
-    // Khởi tạo combobox khi tải trang
     initWeekSelect();
-
     window.toggleCalendar = (e) => {
         const cal = document.getElementById('calendar-dropdown');
         cal.style.display = cal.style.display === 'none' ? 'block' : 'none';
         e.stopPropagation();
     };
     window.onclick = () => document.getElementById('calendar-dropdown').style.display = 'none';
-    document.getElementById('calendar-dropdown').onclick = (e) => e.stopPropagation();
 </script>
 
 <script>
@@ -362,19 +363,12 @@
 
     function exportToWord() {
         const content = document.getElementById('capture-area').innerHTML;
-        const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-        <head><meta charset='utf-8'><style>
-            table {border-collapse:collapse; width:100%; font-family: "Times New Roman", Times, serif;} 
-            th, td {border:1px solid black; padding:10px; vertical-align: top;} 
-            h2 {font-size: 16pt; text-align: center; margin: 0;}
-            p {font-size: 12pt; margin: 5px 0;}
-            b {font-weight: bold;}
-        </style></head><body>`;
+        const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>table {border-collapse:collapse; width:100%;} th, td {border:1px solid black; padding:10px; vertical-align: top; font-family: "Times New Roman";} h2 {text-align: center;} </style></head><body>`;
         const footer = "</body></html>";
         const blob = new Blob(['\ufeff', header + content + footer], { type: 'application/msword' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `Bao_Cao_Tong_Hop_${document.getElementById('view-m').value}_${document.getElementById('view-y').value}.doc`;
+        link.download = `Bao_Cao_Tong_Hop.doc`;
         link.click();
     }
 </script>
