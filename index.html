@@ -503,7 +503,7 @@
             const range = ` (Tuần ${n}: ${d.dateFrom.split('-').reverse().slice(0,2).join('/')}-${d.dateTo.split('-').reverse().slice(0,2).join('/')})`;
             ['mttq','dtn','ccb','pn'].forEach(o => {
                 if(d[o]?.kq) agg[o].kq += `<div style="margin-bottom:10px;"><b>${range}:</b><br>${d[o].kq.replace(/\n/g,'<br>')}</div>`;
-                if(d[o]?.ph) agg[o].ph += `<div style="margin-bottom:10px;"><b>Kế hoạch:</b><br>${d[o].ph.replace(/\n/g,'<br>')}</div>`;
+                if(d[o]?.ph) agg[o].ph += `<div style="margin-bottom:10px;">${d[o].ph.replace(/\n/g,'<br>')}</div>`;
             });
         });
 
