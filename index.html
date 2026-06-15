@@ -52,7 +52,16 @@
         .schedule-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #fff; }
         .schedule-table th, .schedule-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         .schedule-table th { background: var(--light-bg); color: #333; font-weight: bold; text-align: center; }
-        .schedule-table td input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
+        .schedule-table td input, .schedule-table td textarea { 
+            width: 100%; 
+            padding: 8px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            box-sizing: border-box; 
+            font-family: inherit;
+            resize: vertical; /* Cho phép kéo dãn chiều cao nếu muốn */
+            min-height: 60px; /* Đặt chiều cao tối thiểu cho dễ nhìn */
+        }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
@@ -174,13 +183,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td><b>Thứ Hai</b> <br><span id="lbl-t2" style="font-size:12px; color:gray;"></span></td><td><input type="text" id="sch-t2-sang"></td><td><input type="text" id="sch-t2-chieu"></td><td><input type="text" id="sch-t2-toi"></td></tr>
-                    <tr><td><b>Thứ Ba</b> <br><span id="lbl-t3" style="font-size:12px; color:gray;"></span></td><td><input type="text" id="sch-t3-sang"></td><td><input type="text" id="sch-t3-chieu"></td><td><input type="text" id="sch-t3-toi"></td></tr>
-                    <tr><td><b>Thứ Tư</b> <br><span id="lbl-t4" style="font-size:12px; color:gray;"></span></td><td><input type="text" id="sch-t4-sang"></td><td><input type="text" id="sch-t4-chieu"></td><td><input type="text" id="sch-t4-toi"></td></tr>
-                    <tr><td><b>Thứ Năm</b> <br><span id="lbl-t5" style="font-size:12px; color:gray;"></span></td><td><input type="text" id="sch-t5-sang"></td><td><input type="text" id="sch-t5-chieu"></td><td><input type="text" id="sch-t5-toi"></td></tr>
-                    <tr><td><b>Thứ Sáu</b> <br><span id="lbl-t6" style="font-size:12px; color:gray;"></span></td><td><input type="text" id="sch-t6-sang"></td><td><input type="text" id="sch-t6-chieu"></td><td><input type="text" id="sch-t6-toi"></td></tr>
-                    <tr><td><b>Thứ Bảy</b> <br><span id="lbl-t7" style="font-size:12px; color:gray;"></span></td><td><input type="text" id="sch-t7-sang"></td><td><input type="text" id="sch-t7-chieu"></td><td><input type="text" id="sch-t7-toi"></td></tr>
-                    <tr><td><b>Chủ Nhật</b> <br><span id="lbl-cn" style="font-size:12px; color:gray;"></span></td><td><input type="text" id="sch-cn-sang"></td><td><input type="text" id="sch-cn-chieu"></td><td><input type="text" id="sch-cn-toi"></td></tr>
+                    <tr><td><b>Thứ Hai</b> <br><span id="lbl-t2" style="font-size:12px; color:gray;"></span></td><td><textarea id="sch-t2-sang"></textarea></td><td><textarea id="sch-t2-chieu"></textarea></td><td><textarea id="sch-t2-toi"></textarea></td></tr>
+                    <tr><td><b>Thứ Ba</b> <br><span id="lbl-t3" style="font-size:12px; color:gray;"></span></td><td><textarea id="sch-t3-sang"></textarea></td><td><textarea id="sch-t3-chieu"></textarea></td><td><textarea id="sch-t3-toi"></textarea></td></tr>
+                    <tr><td><b>Thứ Tư</b> <br><span id="lbl-t4" style="font-size:12px; color:gray;"></span></td><td><textarea id="sch-t4-sang"></textarea></td><td><textarea id="sch-t4-chieu"></textarea></td><td><textarea id="sch-t4-toi"></textarea></td></tr>
+                    <tr><td><b>Thứ Năm</b> <br><span id="lbl-t5" style="font-size:12px; color:gray;"></span></td><td><textarea id="sch-t5-sang"></textarea></td><td><textarea id="sch-t5-chieu"></textarea></td><td><textarea id="sch-t5-toi"></textarea></td></tr>
+                    <tr><td><b>Thứ Sáu</b> <br><span id="lbl-t6" style="font-size:12px; color:gray;"></span></td><td><textarea id="sch-t6-sang"></textarea></td><td><textarea id="sch-t6-chieu"></textarea></td><td><textarea id="sch-t6-toi"></textarea></td></tr>
+                    <tr><td><b>Thứ Bảy</b> <br><span id="lbl-t7" style="font-size:12px; color:gray;"></span></td><td><textarea id="sch-t7-sang"></textarea></td><td><textarea id="sch-t7-chieu"></textarea></td><td><textarea id="sch-t7-toi"></textarea></td></tr>
+                    <tr><td><b>Chủ Nhật</b> <br><span id="lbl-cn" style="font-size:12px; color:gray;"></span></td><td><textarea id="sch-cn-sang"></textarea></td><td><textarea id="sch-cn-chieu"></textarea></td><td><textarea id="sch-cn-toi"></textarea></td></tr>
                 </tbody>
             </table>
         </div>
