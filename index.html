@@ -48,7 +48,6 @@
         .preview-table th, .preview-table td { border: 1px solid black; padding: 12px; text-align: left; vertical-align: top; font-size: 15px; line-height: 1.6; color: #000; font-family: "Times New Roman", Times, serif; }
         .preview-table th { background: #f2f2f2; font-weight: bold; text-align: center; }
         
-        /* Giao diện bảng lịch tuần Sáng - Chiều - Tối */
         .schedule-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: #fff; }
         .schedule-table th, .schedule-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         .schedule-table th { background: var(--light-bg); color: #333; font-weight: bold; text-align: center; }
@@ -59,8 +58,8 @@
             border-radius: 4px; 
             box-sizing: border-box; 
             font-family: inherit;
-            resize: vertical; /* Cho phép kéo dãn chiều cao nếu muốn */
-            min-height: 60px; /* Đặt chiều cao tối thiểu cho dễ nhìn */
+            resize: vertical; 
+            min-height: 60px; 
         }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -154,17 +153,18 @@
                 </table>
             </div>
 
+            <input type="hidden" id="schedule-industry-select" value="MTTQ">
+
             <span id="schedule-load-status" style="color: var(--gray); font-style: italic; font-size: 12px;"></span>
             <button class="btn-save" id="scheduleSaveBtn">💾 Lưu Lịch Tuần</button>
             <button class="btn-word" onclick="exportScheduleToWord()">📝 Xuất File Lịch</button>
 
             <input type="hidden" id="sch-w"> <input type="hidden" id="sch-y">
-            <input type="hidden" id="schedule-industry-select" value="MTTQ">
         </div>
 
         <div id="schedule-capture-area" style="background: white; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
             <h2 id="sch-title" style="text-align: center; font-family: 'Times New Roman'; margin: 5px 0;">LỊCH CÔNG TÁC TUẦN</h2>
-            <p id="sch-subtitle" style="text-align: center; font-family: 'Times New Roman'; font-style: italic; margin-bottom: 15px;"></p>
+            <p id="sch-subtitle" style="text-align: center; font-family: 'Times New Roman'; font-style: italic; margin-bottom: 15px;">Đơn vị: Mặt trận Tổ quốc Việt Nam phường Ninh Kiều</p>
             
             <table class="schedule-table" style="font-family: 'Times New Roman'; table-layout: fixed;">
                 <thead>
@@ -322,7 +322,6 @@
     }
 
     function updateScheduleTitle() {
-        const industryText = document.getElementById('schedule-industry-select').options[document.getElementById('schedule-industry-select').selectedIndex].text;
         const w = document.getElementById('sch-w').value;
         const y = document.getElementById('sch-y').value;
         document.getElementById('sch-title').innerText = `LỊCH CÔNG TÁC TUẦN ${w} - NĂM ${y}`;
@@ -331,7 +330,6 @@
 
     document.getElementById('week-select-box').onchange = (e) => handleWeekChange(e.target.value);
     document.getElementById('schedule-week-select').onchange = (e) => handleScheduleWeekChange(e.target.value);
-    
 
     // --- DROPDOWN LỊCH ---
     window.changeMonth = (offset) => { currentViewDate.setMonth(currentViewDate.getMonth() + offset); renderCalendar(); };
@@ -527,6 +525,7 @@
         activeDropdownId = '';
     };
 
+    // Gọi hàm khởi tạo sau khi tất cả các hàm liên quan đã sẵn sàng
     initAllWeekSelects();
 </script>
 
@@ -549,74 +548,73 @@
         link.click();
     }
 
-    // Xuất file Word riêng cho cấu trúc lịch tuần công tác (Sáng, Chiều, Tối)
     function exportScheduleToWord() {
-    const title = document.getElementById('sch-title').innerText;
-    const subtitle = document.getElementById('sch-subtitle').innerText;
-    const weekNum = document.getElementById('sch-w').value; // Lấy số tuần để đặt tên file
-    
-    let listContentHtml = "";
-    const days = [
-        {lbl: 'THỨ HAI', id: 't2'}, {lbl: 'THỨ BA', id: 't3'}, {lbl: 'THỨ TƯ', id: 't4'},
-        {lbl: 'THỨ NĂM', id: 't5'}, {lbl: 'THỨ SÁU', id: 't6'}, {lbl: 'THỨ BẢY', id: 't7'}, {lbl: 'CHỦ NHẬT', id: 'cn'}
-    ];
-    
-    days.forEach(d => {
-        const dateStr = document.getElementById(`lbl-${d.id}`).innerText;
-        const yearStr = document.getElementById('sch-y').value;
+        const title = document.getElementById('sch-title').innerText;
+        const subtitle = document.getElementById('sch-subtitle').innerText;
+        const weekNum = document.getElementById('sch-w').value;
         
-        let fullDateLabel = `${d.lbl}, NGÀY ${dateStr}/${yearStr}`;
+        let listContentHtml = "";
+        const days = [
+            {lbl: 'THỨ HAI', id: 't2'}, {lbl: 'THỨ BA', id: 't3'}, {lbl: 'THỨ TƯ', id: 't4'},
+            {lbl: 'THỨ NĂM', id: 't5'}, {lbl: 'THỨ SÁU', id: 't6'}, {lbl: 'THỨ BẢY', id: 't7'}, {lbl: 'CHỦ NHẬT', id: 'cn'}
+        ];
         
-        const sangVal = document.getElementById(`sch-${d.id}-sang`).value.trim() || "";
-        const chieuVal = document.getElementById(`sch-${d.id}-chieu`).value.trim() || "";
-        const toiVal = document.getElementById(`sch-${d.id}-toi`).value.trim() || "";
-        
-        listContentHtml += `
-            <div style="text-align: center; margin-top: 20px; margin-bottom: 10px;">
-                <b style="color: #c00000; font-family: 'Times New Roman'; font-size: 14pt;">${fullDateLabel}</b>
+        days.forEach(d => {
+            const dateStr = document.getElementById(`lbl-${d.id}`).innerText;
+            const yearStr = document.getElementById('sch-y').value;
+            
+            let fullDateLabel = `${d.lbl}, NGÀY ${dateStr}/${yearStr}`;
+            
+            const sangVal = document.getElementById(`sch-${d.id}-sang`).value.trim() || "";
+            const chieuVal = document.getElementById(`sch-${d.id}-chieu`).value.trim() || "";
+            const toiVal = document.getElementById(`sch-${d.id}-toi`).value.trim() || "";
+            
+            listContentHtml += `
+                <div style="text-align: center; margin-top: 20px; margin-bottom: 10px;">
+                    <b style="color: #c00000; font-family: 'Times New Roman'; font-size: 14pt;">${fullDateLabel}</b>
+                </div>
+            `;
+            
+            let dayHasEvent = false;
+            const formatContent = (text) => text.replace(/\n/g, '<br>');
+
+            if (sangVal) {
+                listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 11pt; margin: 4px 0; line-height: 1.3;">- <b>Buổi Sáng:</b> ${formatContent(sangVal)}</p>`;
+                dayHasEvent = true;
+            }
+            if (chieuVal) {
+                listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 11pt; margin: 4px 0; line-height: 1.3;">- <b>Buổi Chiều:</b> ${formatContent(chieuVal)}</p>`;
+                dayHasEvent = true;
+            }
+            if (toiVal) {
+                listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 11pt; margin: 4px 0; line-height: 1.3;">- <b>Buổi Tối:</b> ${formatContent(toiVal)}</p>`;
+                dayHasEvent = true;
+            }
+            
+            if (!dayHasEvent) {
+                listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 10pt; color: #7f7f7f; font-style: italic; margin: 4px 0;">Không có sự kiện</p>`;
+            }
+            
+            listContentHtml += `<div style="border-bottom: 1px solid #d3d3d3; margin-top: 15px; margin-bottom: 5px;"></div>`;
+        });
+
+        const fullContent = `
+            <h2 style="text-align: center; margin: 0 0 5px 0; font-family: 'Times New Roman'; font-size: 16pt; color: #002060;">${title}</h2>
+            <p style="text-align: center; font-style: italic; margin: 0 0 25px 0; font-family: 'Times New Roman'; font-size: 12pt; color: #404040;">${subtitle}</p>
+            <div style="width: 100%;">
+                ${listContentHtml}
             </div>
         `;
-        
-        let dayHasEvent = false;
-        const formatContent = (text) => text.replace(/\n/g, '<br>');
 
-        if (sangVal) {
-            listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 11pt; margin: 4px 0; line-height: 1.3;">- <b>Buổi Sáng:</b> ${formatContent(sangVal)}</p>`;
-            dayHasEvent = true;
-        }
-        if (chieuVal) {
-            listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 11pt; margin: 4px 0; line-height: 1.3;">- <b>Buổi Chiều:</b> ${formatContent(chieuVal)}</p>`;
-            dayHasEvent = true;
-        }
-        if (toiVal) {
-            listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 11pt; margin: 4px 0; line-height: 1.3;">- <b>Buổi Tối:</b> ${formatContent(toiVal)}</p>`;
-            dayHasEvent = true;
-        }
+        const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body style="padding: 20px;">`;
+        const footer = "</body></html>";
+        const blob = new Blob(['\ufeff', header + fullContent + footer], { type: 'application/msword' });
         
-        if (!dayHasEvent) {
-            listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 10pt; color: #7f7f7f; font-style: italic; margin: 4px 0;">Không có sự kiện</p>`;
-        }
-        
-        listContentHtml += `<div style="border-bottom: 1px solid #d3d3d3; margin-top: 15px; margin-bottom: 5px;"></div>`;
-    });
-
-    const fullContent = `
-        <h2 style="text-align: center; margin: 0 0 5px 0; font-family: 'Times New Roman'; font-size: 16pt; color: #002060;">${title}</h2>
-        <p style="text-align: center; font-style: italic; margin: 0 0 25px 0; font-family: 'Times New Roman'; font-size: 12pt; color: #404040;">${subtitle}</p>
-        <div style="width: 100%;">
-            ${listContentHtml}
-        </div>
-    `;
-
-    const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body style="padding: 20px;">`;
-    const footer = "</body></html>";
-    const blob = new Blob(['\ufeff', header + fullContent + footer], { type: 'application/msword' });
-    
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `Lich_Cong_Tac_Tuan_${weekNum}.doc`; 
-    link.click();
-}
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `Lich_Cong_Tac_Tuan_${weekNum}.doc`; 
+        link.click();
+    }
 </script>
 
 </body>
