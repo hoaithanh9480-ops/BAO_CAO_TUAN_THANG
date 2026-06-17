@@ -558,54 +558,79 @@
 
     // Xuất file Word riêng cho cấu trúc lịch tuần công tác (Sáng, Chiều, Tối)
     function exportScheduleToWord() {
-        const title = document.getElementById('sch-title').innerText;
-        const subtitle = document.getElementById('sch-subtitle').innerText;
+    const title = document.getElementById('sch-title').innerText;
+    const subtitle = document.getElementById('sch-subtitle').innerText;
+    
+    let listContentHtml = "";
+    const days = [
+        {lbl: 'THỨ HAI', id: 't2'}, {lbl: 'THỦ BA', id: 't3'}, {lbl: 'THỨ TƯ', id: 't4'},
+        {lbl: 'THỨ NĂM', id: 't5'}, {lbl: 'THỨ SÁU', id: 't6'}, {lbl: 'THỨ BẢY', id: 't7'}, {lbl: 'CHỦ NHẬT', id: 'cn'}
+    ];
+    
+    days.forEach(d => {
+        const dateStr = document.getElementById(`lbl-${d.id}`).innerText; // Lấy ngày/tháng (VD: 15/6)
+        const yearStr = document.getElementById('sch-y').value; // Lấy năm để tạo ngày đầy đủ
         
-        let tableRowsHtml = "";
-        const days = [
-            {lbl: 'Thứ Hai', id: 't2'}, {lbl: 'Thứ Ba', id: 't3'}, {lbl: 'Thứ Tư', id: 't4'},
-            {lbl: 'Thứ Năm', id: 't5'}, {lbl: 'Thứ Sáu', id: 't6'}, {lbl: 'Thứ Bảy', id: 't7'}, {lbl: 'Chủ Nhật', id: 'cn'}
-        ];
+        // Chuẩn hóa chuỗi ngày đầy đủ (VD: THỨ HAI, NGÀY 15/06/2026)
+        let fullDateLabel = `${d.lbl}, NGÀY ${dateStr}/${yearStr}`;
         
-        days.forEach(d => {
-            const dateStr = document.getElementById(`lbl-${d.id}`).innerText;
-            const sangVal = document.getElementById(`sch-${d.id}-sang`).value || "";
-            const chieuVal = document.getElementById(`sch-${d.id}-chieu`).value || "";
-            const toiVal = document.getElementById(`sch-${d.id}-toi`).value || "";
-            tableRowsHtml += `<tr>
-                <td style="width:13%; text-align:center; border:1px solid black; padding:8px;"><b>${d.lbl}</b><br>(${dateStr})</td>
-                <td style="width:29%; border:1px solid black; padding:8px;">${sangVal}</td>
-                <td style="width:29%; border:1px solid black; padding:8px;">${chieuVal}</td>
-                <td style="width:29%; border:1px solid black; padding:8px;">${toiVal}</td>
-            </tr>`;
-        });
-
-        const fullContent = `
-            <h2 style="text-align: center; margin: 0; font-family: 'Times New Roman';">${title}</h2>
-            <p style="text-align: center; font-style: italic; margin: 5px 0 20px 0; font-family: 'Times New Roman'; font-size: 16px;">${subtitle}</p>
-            <table style="width:100%; border-collapse:collapse; font-family: 'Times New Roman'; table-layout: fixed;">
-                <thead>
-                    <tr style="background:#f2f2f2;">
-                        <th style="border:1px solid black; padding:8px; width:13%;">Thứ / Ngày</th>
-                        <th style="border:1px solid black; padding:8px; width:29%;">Buổi Sáng</th>
-                        <th style="border:1px solid black; padding:8px; width:29%;">Buổi Chiều</th>
-                        <th style="border:1px solid black; padding:8px; width:29%;">Buổi Tối</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${tableRowsHtml}
-                </tbody>
-            </table>
+        const sangVal = document.getElementById(`sch-${d.id}-sang`).value.trim() || "";
+        const chieuVal = document.getElementById(`sch-${d.id}-chieu`).value.trim() || "";
+        const toiVal = document.getElementById(`sch-${d.id}-toi`).value.trim() || "";
+        
+        // Tạo tiêu đề ngày màu đỏ, canh giữa giống trong hình
+        listContentHtml += `
+            <div style="text-align: center; margin-top: 20px; margin-bottom: 10px;">
+                <b style="color: #c00000; font-family: 'Times New Roman'; font-size: 14pt;">${fullDateLabel}</b>
+            </div>
         `;
+        
+        let dayHasEvent = false;
+        
+        // Hàm phụ để định dạng xuống dòng của textarea thành thẻ <br> trong Word
+        const formatContent = (text) => text.replace(/\n/g, '<br>');
 
-        const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>`;
-        const footer = "</body></html>";
-        const blob = new Blob(['\ufeff', header + fullContent + footer], { type: 'application/msword' });
+        // Gom nội dung các buổi lại thành danh sách dòng
+        if (sangVal) {
+            listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 11pt; margin: 4px 0; line-height: 1.3;">- <b>Buổi Sáng:</b> ${formatContent(sangVal)}</p>`;
+            dayHasEvent = true;
+        }
+        if (chieuVal) {
+            listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 11pt; margin: 4px 0; line-height: 1.3;">- <b>Buổi Chiều:</b> ${formatContent(chieuVal)}</p>`;
+            dayHasEvent = true;
+        }
+        if (toiVal) {
+            listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 11pt; margin: 4px 0; line-height: 1.3;">- <b>Buổi Tối:</b> ${formatContent(toiVal)}</p>`;
+            dayHasEvent = true;
+        }
+        
+        // Nếu ngày đó không có lịch gì thì hiển thị "Không có sự kiện" giống viền dưới ảnh mẫu
+        if (!dayHasEvent) {
+            listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 10pt; color: #7f7f7f; font-style: italic; margin: 4px 0;">Không có sự kiện</p>`;
+        }
+        
+        // Thêm đường gạch ngang phân cách giữa các ngày (Border dưới)
+        listContentHtml += `<div style="border-bottom: 1px solid #d3d3d3; margin-top: 15px; margin-bottom: 5px;"></div>`;
+    });
+
+    const fullContent = `
+        <h2 style="text-align: center; margin: 0 0 5px 0; font-family: 'Times New Roman'; font-size: 16pt; color: #002060;">${title}</h2>
+        <p style="text-align: center; font-style: italic; margin: 0 0 25px 0; font-family: 'Times New Roman'; font-size: 12pt; color: #404040;">${subtitle}</p>
+        <div style="width: 100%;">
+            ${listContentHtml}
+        </div>
+    `;
+
+    const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body style="padding: 20px;">`;
+    const footer = "</body></html>";
+    const blob = new Blob(['\ufeff', header + fullContent + footer], { type: 'application/msword' });
+    const weekNum = document.getElementById('sch-w').value;[cite: 1]
+        
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `Lich_Cong_Tac_Tuan_Full.doc`;
+        link.download = `Lich_Cong_Tac_Tuan_${weekNum}.doc`; // File tải về sẽ có dạng: Lich_Cong_Tac_Tuan_25.doc
         link.click();
-    }
+}
 </script>
 
 </body>
