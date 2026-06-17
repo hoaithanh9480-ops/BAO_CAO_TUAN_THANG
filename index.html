@@ -154,19 +154,12 @@
                 </table>
             </div>
 
-            <strong>Chọn ngành:</strong>
-            <select id="schedule-industry-select" style="font-weight: bold; color: var(--primary);">
-                <option value="MTTQ">Ủy ban Mặt trận Tổ quốc (MTTQ)</option>
-                <option value="ĐTN">Đoàn Thanh niên (ĐTN)</option>
-                <option value="CCB">Hội Cựu chiến binh (CCB)</option>
-                <option value="PN">Hội Phụ nữ (PN)</option>
-            </select>
-
             <span id="schedule-load-status" style="color: var(--gray); font-style: italic; font-size: 12px;"></span>
             <button class="btn-save" id="scheduleSaveBtn">💾 Lưu Lịch Tuần</button>
             <button class="btn-word" onclick="exportScheduleToWord()">📝 Xuất File Lịch</button>
 
             <input type="hidden" id="sch-w"> <input type="hidden" id="sch-y">
+            <input type="hidden" id="schedule-industry-select" value="MTTQ">
         </div>
 
         <div id="schedule-capture-area" style="background: white; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
@@ -333,12 +326,12 @@
         const w = document.getElementById('sch-w').value;
         const y = document.getElementById('sch-y').value;
         document.getElementById('sch-title').innerText = `LỊCH CÔNG TÁC TUẦN ${w} - NĂM ${y}`;
-        document.getElementById('sch-subtitle').innerText = `Đơn vị: ${industryText}`;
+        document.getElementById('sch-subtitle').innerText = `Đơn vị: Mặt trận Tổ quốc Việt Nam phường Ninh Kiều`;
     }
 
     document.getElementById('week-select-box').onchange = (e) => handleWeekChange(e.target.value);
     document.getElementById('schedule-week-select').onchange = (e) => handleScheduleWeekChange(e.target.value);
-    document.getElementById('schedule-industry-select').onchange = () => { updateScheduleTitle(); loadScheduleData(); };
+    
 
     // --- DROPDOWN LỊCH ---
     window.changeMonth = (offset) => { currentViewDate.setMonth(currentViewDate.getMonth() + offset); renderCalendar(); };
