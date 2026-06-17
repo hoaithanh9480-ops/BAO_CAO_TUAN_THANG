@@ -558,25 +558,25 @@
 
     // Xuất file Word riêng cho cấu trúc lịch tuần công tác (Sáng, Chiều, Tối)
     function exportScheduleToWord() {
-    const title = document.getElementById('sch-title').innerText;[cite: 1]
-    const subtitle = document.getElementById('sch-subtitle').innerText;[cite: 1]
-    const weekNum = document.getElementById('sch-w').value; // Lấy số tuần để đặt tên file[cite: 1]
+    const title = document.getElementById('sch-title').innerText;
+    const subtitle = document.getElementById('sch-subtitle').innerText;
+    const weekNum = document.getElementById('sch-w').value; // Lấy số tuần để đặt tên file
     
     let listContentHtml = "";
     const days = [
         {lbl: 'THỨ HAI', id: 't2'}, {lbl: 'THỨ BA', id: 't3'}, {lbl: 'THỨ TƯ', id: 't4'},
         {lbl: 'THỨ NĂM', id: 't5'}, {lbl: 'THỨ SÁU', id: 't6'}, {lbl: 'THỨ BẢY', id: 't7'}, {lbl: 'CHỦ NHẬT', id: 'cn'}
-    ];[cite: 1]
+    ];
     
     days.forEach(d => {
-        const dateStr = document.getElementById(`lbl-${d.id}`).innerText;[cite: 1]
-        const yearStr = document.getElementById('sch-y').value;[cite: 1]
+        const dateStr = document.getElementById(`lbl-${d.id}`).innerText;
+        const yearStr = document.getElementById('sch-y').value;
         
         let fullDateLabel = `${d.lbl}, NGÀY ${dateStr}/${yearStr}`;
         
-        const sangVal = document.getElementById(`sch-${d.id}-sang`).value.trim() || "";[cite: 1]
-        const chieuVal = document.getElementById(`sch-${d.id}-chieu`).value.trim() || "";[cite: 1]
-        const toiVal = document.getElementById(`sch-${d.id}-toi`).value.trim() || "";[cite: 1]
+        const sangVal = document.getElementById(`sch-${d.id}-sang`).value.trim() || "";
+        const chieuVal = document.getElementById(`sch-${d.id}-chieu`).value.trim() || "";
+        const toiVal = document.getElementById(`sch-${d.id}-toi`).value.trim() || "";
         
         listContentHtml += `
             <div style="text-align: center; margin-top: 20px; margin-bottom: 10px;">
@@ -621,7 +621,7 @@
     
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `Lich_Cong_Tac_Tuan_${weekNum}.doc`; // Kết quả: Lich_Cong_Tac_Tuan_25.doc[cite: 1]
+    link.download = `Lich_Cong_Tac_Tuan_${weekNum}.doc`; 
     link.click();
 }
 </script>
