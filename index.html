@@ -322,9 +322,21 @@
     }
 
     function updateScheduleTitle() {
-        const w = document.getElementById('sch-w').value;
-        const y = document.getElementById('sch-y').value;
-        document.getElementById('sch-title').innerText = `LỊCH CÔNG TÁC TUẦN ${w} - NĂM ${y}`;
+        const selectSchedule = document.getElementById('schedule-week-select');
+        if (!selectSchedule.value) return;
+        
+        const data = JSON.parse(selectSchedule.value);
+        const w = data.weekNo;
+        const y = data.year;
+        
+        // Lấy ngày/tháng từ dữ liệu tuần
+        const mondayDate = new Date(data.monday);
+        const sundayDate = new Date(data.sunday);
+        const fromStr = `${mondayDate.getDate()}/${mondayDate.getMonth() + 1}`;
+        const toStr = `${sundayDate.getDate()}/${sundayDate.getMonth() + 1}`;
+        
+        // Cập nhật tiêu đề hiển thị đúng mẫu
+        document.getElementById('sch-title').innerText = `LỊCH CÔNG TÁC TUẦN ${w} (Từ ${fromStr} - ${toStr}) - NĂM ${y}`;
         document.getElementById('sch-subtitle').innerText = `Đơn vị: Mặt trận Tổ quốc Việt Nam phường Ninh Kiều`;
     }
 
