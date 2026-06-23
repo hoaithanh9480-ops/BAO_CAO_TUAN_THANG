@@ -11,7 +11,7 @@
         
         .header-fixed { position: sticky; top: 0; background: white; z-index: 1000; padding: 15px 15px 5px 15px; margin: -15px -15px 10px -15px; border-radius: 12px 12px 0 0; }
         h1 { text-align: center; color: var(--primary); margin: 0 0 10px 0; font-size: 22px; }
-        .tabs { display: flex; gap: 5px; border-bottom: 2px solid #eee; margin-bottom: 10px; }
+        .tabs { display: flex; gap: 5px; border-bottom: 2px solid #eee; margin-bottom: 10px; flex-wrap: wrap; }
         .tab-link { padding: 10px 25px; cursor: pointer; border: none; background: none; font-size: 15px; font-weight: 600; color: var(--gray); border-bottom: 3px solid transparent; transition: 0.3s; }
         .tab-link.active { color: var(--primary); border-bottom-color: var(--primary); }
         .tab-content { display: none; animation: fadeIn 0.4s; }
@@ -22,6 +22,7 @@
             border-radius: 8px; margin-bottom: 15px; align-items: center; 
             position: sticky; top: 105px; z-index: 999; border: 1px solid #d1e3ff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            flex-wrap: wrap;
         }
         
         .week-select { padding: 8px 12px; border-radius: 4px; border: 1px solid #ccc; font-weight: 600; font-family: inherit; color: #333; cursor: pointer; min-width: 250px; }
@@ -62,7 +63,64 @@
             min-height: 60px; 
         }
 
+        /* Style cho tab xem lịch */
+        .schedule-view-item {
+            border-bottom: 1px solid #d3d3d3;
+            padding: 15px 0;
+        }
+        .schedule-view-item:last-child {
+            border-bottom: none;
+        }
+        .schedule-view-day {
+            text-align: center;
+            color: #c00000;
+            font-family: 'Times New Roman';
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .schedule-view-content {
+            font-family: 'Times New Roman';
+            font-size: 11pt;
+            line-height: 1.5;
+            padding-left: 10px;
+        }
+        .schedule-view-content .event-item {
+            margin: 4px 0;
+        }
+        .schedule-view-content .event-label {
+            font-weight: bold;
+        }
+        .schedule-view-empty {
+            color: #7f7f7f;
+            font-style: italic;
+            margin: 4px 0;
+        }
+        .schedule-view-title {
+            text-align: center;
+            font-family: 'Times New Roman';
+            font-size: 16pt;
+            color: #002060;
+            margin: 0 0 5px 0;
+        }
+        .schedule-view-subtitle {
+            text-align: center;
+            font-style: italic;
+            font-family: 'Times New Roman';
+            font-size: 12pt;
+            color: #404040;
+            margin: 0 0 25px 0;
+        }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        @media (max-width: 768px) {
+            .toolbar { flex-direction: column; align-items: stretch; top: 135px; }
+            .week-select { min-width: 100%; }
+            .grid { grid-template-columns: 1fr; }
+            .tabs { flex-direction: column; }
+            .tab-link { text-align: center; }
+        }
     </style>
 </head>
 <body>
@@ -73,10 +131,12 @@
         <div class="tabs">
             <button class="tab-link active" onclick="openTab(event, 'input-tab')">📍 Nhập dữ liệu Tuần</button>
             <button class="tab-link" onclick="openTab(event, 'schedule-tab')">📅 Lịch công tác tuần</button>
+            <button class="tab-link" onclick="openTab(event, 'view-schedule-tab')">👁️ Xem Lịch công tác</button>
             <button class="tab-link" onclick="openTab(event, 'summary-tab')">📊 Tổng hợp Báo cáo</button>
         </div>
     </div>
 
+    <!-- TAB 1: NHẬP DỮ LIỆU -->
     <div id="input-tab" class="tab-content active">
         <div class="toolbar">
             <strong>Thời gian:</strong>
@@ -135,6 +195,7 @@
         </div>
     </div>
 
+    <!-- TAB 2: NHẬP LỊCH CÔNG TÁC -->
     <div id="schedule-tab" class="tab-content">
         <div class="toolbar">
             <strong>Thời gian:</strong>
@@ -188,6 +249,43 @@
         </div>
     </div>
 
+    <!-- TAB 3: XEM LỊCH CÔNG TÁC (Dạng danh sách giống xuất file) -->
+    <div id="view-schedule-tab" class="tab-content">
+        <div class="toolbar">
+            <strong>Thời gian:</strong>
+            <select id="view-schedule-week-select" class="week-select"></select>
+            <button onclick="toggleCalendar(event, 'view-schedule-calendar-dropdown')" style="background:#fff; border:1px solid #ccc; padding:8px;">📅</button>
+
+            <div id="view-schedule-calendar-dropdown" class="calendar-dropdown-cls">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <button onclick="changeMonth(-1)">◀</button>
+                    <b class="cal-month-year-lbl">Tháng 05/2026</b>
+                    <button onclick="changeMonth(1)">▶</button>
+                </div>
+                <table class="cal-table">
+                    <thead><tr><th>T.</th><th>H</th><th>B</th><th>T</th><th>N</th><th>S</th><th>B</th><th>C</th></tr></thead>
+                    <tbody class="cal-body-content"></tbody>
+                </table>
+            </div>
+
+            <input type="hidden" id="view-sch-w"> 
+            <input type="hidden" id="view-sch-y">
+            <span id="view-schedule-load-status" style="color: var(--gray); font-style: italic; font-size: 12px;"></span>
+            <button class="btn-word" onclick="exportViewScheduleToWord()">📝 Xuất File Lịch</button>
+        </div>
+
+        <!-- Khu vực hiển thị lịch dạng danh sách -->
+        <div id="view-schedule-display" style="background: white; padding: 30px; border: 1px solid #ccc; border-radius: 8px; min-height: 400px;">
+            <h2 id="view-sch-title" class="schedule-view-title">LỊCH CÔNG TÁC TUẦN</h2>
+            <p id="view-sch-subtitle" class="schedule-view-subtitle">Đơn vị: Mặt trận Tổ quốc Việt Nam phường Ninh Kiều</p>
+            
+            <div id="view-schedule-list">
+                <p style="text-align:center; color:gray; font-style:italic;">Chọn tuần để xem lịch công tác</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 4: TỔNG HỢP BÁO CÁO -->
     <div id="summary-tab" class="tab-content">
         <div class="toolbar">
             <strong>Xem theo:</strong>
@@ -253,6 +351,8 @@
     let activeDropdownId = '';
     const fields = ['mttq-kq', 'mttq-ph', 'dtn-kq', 'dtn-ph', 'ccb-kq', 'ccb-ph', 'pn-kq', 'pn-ph'];
     const daysOfWeek = ['t2', 't3', 't4', 't5', 't6', 't7', 'cn'];
+    const dayNames = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
+    const dayLabels = ['lbl-t2', 'lbl-t3', 'lbl-t4', 'lbl-t5', 'lbl-t6', 'lbl-t7', 'lbl-cn'];
 
     function getWeekData(date) {
         let d = new Date(date);
@@ -266,8 +366,7 @@
     }
 
     function initAllWeekSelects() {
-        const selectReport = document.getElementById('week-select-box');
-        const selectSchedule = document.getElementById('schedule-week-select');
+        const selects = ['week-select-box', 'schedule-week-select', 'view-schedule-week-select'];
         const now = new Date();
         const currentData = getWeekData(now);
         
@@ -284,13 +383,17 @@
             weekDate.setDate(weekDate.getDate() + 7);
         }
         
-        selectReport.innerHTML = optionsHtml;
-        selectSchedule.innerHTML = optionsHtml;
+        selects.forEach(id => {
+            document.getElementById(id).innerHTML = optionsHtml;
+        });
 
-        handleWeekChange(selectReport.value);
-        handleScheduleWeekChange(selectSchedule.value);
+        // Khởi tạo các handler
+        handleWeekChange(document.getElementById('week-select-box').value);
+        handleScheduleWeekChange(document.getElementById('schedule-week-select').value);
+        handleViewScheduleWeekChange(document.getElementById('view-schedule-week-select').value);
     }
 
+    // --- XỬ LÝ TAB 1 ---
     function handleWeekChange(value) {
         const data = JSON.parse(value);
         document.getElementById('w').value = data.weekNo;
@@ -303,95 +406,8 @@
         loadCurrentWeekData();
     }
 
-    function handleScheduleWeekChange(value) {
-        const data = JSON.parse(value);
-        document.getElementById('sch-w').value = data.weekNo;
-        document.getElementById('sch-y').value = data.year;
-        currentViewDate = new Date(data.monday);
-        
-        let start = new Date(data.monday);
-        daysOfWeek.forEach((day, idx) => {
-            let currentDay = new Date(start);
-            currentDay.setDate(start.getDate() + idx);
-            document.getElementById(`lbl-${day}`).innerText = `${currentDay.getDate()}/${currentDay.getMonth()+1}`;
-        });
-
-        updateScheduleTitle();
-        renderCalendar();
-        loadScheduleData();
-    }
-
-    function updateScheduleTitle() {
-        const selectSchedule = document.getElementById('schedule-week-select');
-        if (!selectSchedule.value) return;
-        
-        const data = JSON.parse(selectSchedule.value);
-        const w = data.weekNo;
-        const y = data.year;
-        
-        // Lấy ngày/tháng từ dữ liệu tuần
-        const mondayDate = new Date(data.monday);
-        const sundayDate = new Date(data.sunday);
-        const fromStr = `${mondayDate.getDate()}/${mondayDate.getMonth() + 1}`;
-        const toStr = `${sundayDate.getDate()}/${sundayDate.getMonth() + 1}`;
-        
-        // Cập nhật tiêu đề hiển thị đúng mẫu
-        document.getElementById('sch-title').innerText = `LỊCH CÔNG TÁC TUẦN ${w} (Từ ${fromStr} - ${toStr}) - NĂM ${y}`;
-        document.getElementById('sch-subtitle').innerText = `Đơn vị: Mặt trận Tổ quốc Việt Nam phường Ninh Kiều`;
-    }
-
     document.getElementById('week-select-box').onchange = (e) => handleWeekChange(e.target.value);
-    document.getElementById('schedule-week-select').onchange = (e) => handleScheduleWeekChange(e.target.value);
 
-    // --- DROPDOWN LỊCH ---
-    window.changeMonth = (offset) => { currentViewDate.setMonth(currentViewDate.getMonth() + offset); renderCalendar(); };
-    
-    function renderCalendar() {
-        if (!activeDropdownId) return;
-        const container = document.getElementById(activeDropdownId);
-        const year = currentViewDate.getFullYear(); const month = currentViewDate.getMonth();
-        container.querySelector('.cal-month-year-lbl').innerText = `Tháng ${month + 1}/${year}`;
-        
-        let startDay = new Date(year, month, 1);
-        startDay.setDate(startDay.getDate() - (startDay.getDay() === 0 ? 6 : startDay.getDay() - 1));
-        
-        let html = ''; 
-        const selectedW = activeDropdownId === 'calendar-dropdown' ? document.getElementById('w').value : document.getElementById('sch-w').value;
-        const selectedY = activeDropdownId === 'calendar-dropdown' ? document.getElementById('y').value : document.getElementById('sch-y').value;
-        
-        for (let i = 0; i < 6; i++) {
-            let rowDate = new Date(startDay);
-            let weekNum = getWeekData(rowDate).weekNo;
-            let isSelected = (weekNum == selectedW && rowDate.getFullYear() == selectedY);
-            html += `<tr class="${isSelected ? 'selected-week' : ''}" onclick="selectWeek(this, '${rowDate.toISOString()}')">`;
-            html += `<td style="color:#999; font-size:11px;">${weekNum}</td>`;
-            for (let j = 0; j < 7; j++) {
-                html += `<td style="${startDay.getMonth() !== month ? 'color:#ccc':''}">${startDay.getDate()}</td>`;
-                startDay.setDate(startDay.getDate() + 1);
-            }
-            html += '</tr>';
-        }
-        container.querySelector('.cal-body-content').innerHTML = html;
-    }
-
-    window.selectWeek = (row, startDateStr) => {
-        let weekInfo = getWeekData(new Date(startDateStr));
-        if (activeDropdownId === 'calendar-dropdown') {
-            const select = document.getElementById('week-select-box');
-            for(let opt of select.options){
-                if(JSON.parse(opt.value).weekNo == weekInfo.weekNo) { opt.selected = true; handleWeekChange(opt.value); break; }
-            }
-        } else {
-            const select = document.getElementById('schedule-week-select');
-            for(let opt of select.options){
-                if(JSON.parse(opt.value).weekNo == weekInfo.weekNo) { opt.selected = true; handleScheduleWeekChange(opt.value); break; }
-            }
-        }
-        document.getElementById(activeDropdownId).style.display = 'none';
-        activeDropdownId = '';
-    };
-
-    // --- DỮ LIỆU BÁO CÁO (TAB 1) ---
     async function loadCurrentWeekData() {
         const y = document.getElementById('y').value, w = document.getElementById('w').value;
         document.getElementById('load-status').innerText = "⌛ Đang tải...";
@@ -421,7 +437,44 @@
         alert("✅ Đã lưu báo cáo thành công!");
     };
 
-    // --- DỮ LIỆU LỊCH TUẦN SÁNG - CHIỀU - TỐI (TAB 2) ---
+    // --- XỬ LÝ TAB 2 (NHẬP LỊCH) ---
+    function handleScheduleWeekChange(value) {
+        const data = JSON.parse(value);
+        document.getElementById('sch-w').value = data.weekNo;
+        document.getElementById('sch-y').value = data.year;
+        currentViewDate = new Date(data.monday);
+        
+        let start = new Date(data.monday);
+        daysOfWeek.forEach((day, idx) => {
+            let currentDay = new Date(start);
+            currentDay.setDate(start.getDate() + idx);
+            document.getElementById(`lbl-${day}`).innerText = `${currentDay.getDate()}/${currentDay.getMonth()+1}`;
+        });
+
+        updateScheduleTitle();
+        renderCalendar();
+        loadScheduleData();
+    }
+
+    document.getElementById('schedule-week-select').onchange = (e) => handleScheduleWeekChange(e.target.value);
+
+    function updateScheduleTitle() {
+        const selectSchedule = document.getElementById('schedule-week-select');
+        if (!selectSchedule.value) return;
+        
+        const data = JSON.parse(selectSchedule.value);
+        const w = data.weekNo;
+        const y = data.year;
+        
+        const mondayDate = new Date(data.monday);
+        const sundayDate = new Date(data.sunday);
+        const fromStr = `${mondayDate.getDate()}/${mondayDate.getMonth() + 1}`;
+        const toStr = `${sundayDate.getDate()}/${sundayDate.getMonth() + 1}`;
+        
+        document.getElementById('sch-title').innerText = `LỊCH CÔNG TÁC TUẦN ${w} (Từ ${fromStr} - ${toStr}) - NĂM ${y}`;
+        document.getElementById('sch-subtitle').innerText = `Đơn vị: Mặt trận Tổ quốc Việt Nam phường Ninh Kiều`;
+    }
+
     async function loadScheduleData() {
         const y = document.getElementById('sch-y').value;
         const w = document.getElementById('sch-w').value;
@@ -466,7 +519,198 @@
         alert("✅ Đã lưu lịch công tác tuần thành công!");
     };
 
-    // --- TỔNG HỢP CÔNG TÁC (TAB 3) ---
+    // --- XỬ LÝ TAB 3 (XEM LỊCH) ---
+    function handleViewScheduleWeekChange(value) {
+        const data = JSON.parse(value);
+        document.getElementById('view-sch-w').value = data.weekNo;
+        document.getElementById('view-sch-y').value = data.year;
+        currentViewDate = new Date(data.monday);
+        renderCalendar();
+        loadViewScheduleData(data);
+    }
+
+    document.getElementById('view-schedule-week-select').onchange = (e) => handleViewScheduleWeekChange(e.target.value);
+
+    async function loadViewScheduleData(weekData) {
+        const y = weekData.year;
+        const w = weekData.weekNo;
+        const ind = 'MTTQ'; // Mặc định lấy MTTQ
+        
+        document.getElementById('view-schedule-load-status').innerText = "⌛ Đang tải lịch...";
+        
+        const snap = await get(ref(db, `schedule/${y}/week_${w}/${ind}`));
+        
+        // Cập nhật tiêu đề
+        const mondayDate = new Date(weekData.monday);
+        const sundayDate = new Date(weekData.sunday);
+        const fromStr = `${mondayDate.getDate()}/${mondayDate.getMonth() + 1}`;
+        const toStr = `${sundayDate.getDate()}/${sundayDate.getMonth() + 1}`;
+        document.getElementById('view-sch-title').innerText = `LỊCH CÔNG TÁC TUẦN ${w} (Từ ${fromStr} - ${toStr}) - NĂM ${y}`;
+        document.getElementById('view-sch-subtitle').innerText = `Đơn vị: Mặt trận Tổ quốc Việt Nam phường Ninh Kiều`;
+        
+        let data = {};
+        if(snap.exists()) {
+            data = snap.val();
+            document.getElementById('view-schedule-load-status').innerText = "✅ Đã tải lịch.";
+        } else {
+            document.getElementById('view-schedule-load-status').innerText = "✨ Lịch trống.";
+        }
+        
+        // Render danh sách
+        const container = document.getElementById('view-schedule-list');
+        let html = '';
+        
+        const dayIds = ['t2', 't3', 't4', 't5', 't6', 't7', 'cn'];
+        const dayNamesFull = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
+        
+        let start = new Date(weekData.monday);
+        
+        dayIds.forEach((dayId, idx) => {
+            let currentDay = new Date(start);
+            currentDay.setDate(start.getDate() + idx);
+            const dateStr = `${currentDay.getDate()}/${currentDay.getMonth()+1}/${currentDay.getFullYear()}`;
+            
+            const dayData = data[dayId] || {};
+            const sang = dayData.sang || '';
+            const chieu = dayData.chieu || '';
+            const toi = dayData.toi || '';
+            
+            const hasEvent = sang || chieu || toi;
+            
+            html += `<div class="schedule-view-item">`;
+            html += `<div class="schedule-view-day">${dayNamesFull[idx]}, NGÀY ${dateStr}</div>`;
+            html += `<div class="schedule-view-content">`;
+            
+            if (sang) {
+                html += `<div class="event-item">- <span class="event-label">Buổi Sáng:</span> ${sang.replace(/\n/g, '<br>')}</div>`;
+            }
+            if (chieu) {
+                html += `<div class="event-item">- <span class="event-label">Buổi Chiều:</span> ${chieu.replace(/\n/g, '<br>')}</div>`;
+            }
+            if (toi) {
+                html += `<div class="event-item">- <span class="event-label">Buổi Tối:</span> ${toi.replace(/\n/g, '<br>')}</div>`;
+            }
+            if (!hasEvent) {
+                html += `<div class="schedule-view-empty">Không có sự kiện</div>`;
+            }
+            
+            html += `</div></div>`;
+        });
+        
+        container.innerHTML = html;
+    }
+
+    // Xuất lịch từ tab xem
+    window.exportViewScheduleToWord = function() {
+        const container = document.getElementById('view-schedule-display');
+        const content = container.innerHTML;
+        const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>
+            .schedule-view-item { border-bottom: 1px solid #d3d3d3; padding: 15px 0; }
+            .schedule-view-day { text-align: center; color: #c00000; font-family: 'Times New Roman'; font-size: 14pt; font-weight: bold; margin-bottom: 8px; }
+            .schedule-view-content { font-family: 'Times New Roman'; font-size: 11pt; line-height: 1.5; padding-left: 10px; }
+            .event-item { margin: 4px 0; }
+            .event-label { font-weight: bold; }
+            .schedule-view-empty { color: #7f7f7f; font-style: italic; margin: 4px 0; }
+            .schedule-view-title { text-align: center; font-family: 'Times New Roman'; font-size: 16pt; color: #002060; margin: 0 0 5px 0; }
+            .schedule-view-subtitle { text-align: center; font-style: italic; font-family: 'Times New Roman'; font-size: 12pt; color: #404040; margin: 0 0 25px 0; }
+        </style></head><body>`;
+        const footer = "</body></html>";
+        const blob = new Blob(['\ufeff', header + content + footer], { type: 'application/msword' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        const weekNum = document.getElementById('view-sch-w').value || 'XX';
+        link.download = `Lich_Cong_Tac_Tuan_${weekNum}.doc`;
+        link.click();
+    };
+
+    // --- CALENDAR ---
+    window.changeMonth = (offset) => { currentViewDate.setMonth(currentViewDate.getMonth() + offset); renderCalendar(); };
+    
+    function renderCalendar() {
+        if (!activeDropdownId) return;
+        const container = document.getElementById(activeDropdownId);
+        const year = currentViewDate.getFullYear(); const month = currentViewDate.getMonth();
+        container.querySelector('.cal-month-year-lbl').innerText = `Tháng ${month + 1}/${year}`;
+        
+        let startDay = new Date(year, month, 1);
+        startDay.setDate(startDay.getDate() - (startDay.getDay() === 0 ? 6 : startDay.getDay() - 1));
+        
+        let html = ''; 
+        let selectedW = '';
+        let selectedY = '';
+        if (activeDropdownId === 'calendar-dropdown') {
+            selectedW = document.getElementById('w').value;
+            selectedY = document.getElementById('y').value;
+        } else if (activeDropdownId === 'schedule-calendar-dropdown') {
+            selectedW = document.getElementById('sch-w').value;
+            selectedY = document.getElementById('sch-y').value;
+        } else if (activeDropdownId === 'view-schedule-calendar-dropdown') {
+            selectedW = document.getElementById('view-sch-w').value;
+            selectedY = document.getElementById('view-sch-y').value;
+        }
+        
+        for (let i = 0; i < 6; i++) {
+            let rowDate = new Date(startDay);
+            let weekNum = getWeekData(rowDate).weekNo;
+            let isSelected = (weekNum == selectedW && rowDate.getFullYear() == selectedY);
+            html += `<tr class="${isSelected ? 'selected-week' : ''}" onclick="selectWeek(this, '${rowDate.toISOString()}')">`;
+            html += `<td style="color:#999; font-size:11px;">${weekNum}</td>`;
+            for (let j = 0; j < 7; j++) {
+                html += `<td style="${startDay.getMonth() !== month ? 'color:#ccc':''}">${startDay.getDate()}</td>`;
+                startDay.setDate(startDay.getDate() + 1);
+            }
+            html += '</tr>';
+        }
+        container.querySelector('.cal-body-content').innerHTML = html;
+    }
+
+    window.selectWeek = (row, startDateStr) => {
+        let weekInfo = getWeekData(new Date(startDateStr));
+        let selectId = '';
+        if (activeDropdownId === 'calendar-dropdown') {
+            selectId = 'week-select-box';
+        } else if (activeDropdownId === 'schedule-calendar-dropdown') {
+            selectId = 'schedule-week-select';
+        } else if (activeDropdownId === 'view-schedule-calendar-dropdown') {
+            selectId = 'view-schedule-week-select';
+        }
+        
+        if (selectId) {
+            const select = document.getElementById(selectId);
+            for(let opt of select.options){
+                if(JSON.parse(opt.value).weekNo == weekInfo.weekNo) { 
+                    opt.selected = true; 
+                    if (selectId === 'week-select-box') handleWeekChange(opt.value);
+                    else if (selectId === 'schedule-week-select') handleScheduleWeekChange(opt.value);
+                    else if (selectId === 'view-schedule-week-select') handleViewScheduleWeekChange(opt.value);
+                    break; 
+                }
+            }
+        }
+        document.getElementById(activeDropdownId).style.display = 'none';
+        activeDropdownId = '';
+    };
+
+    window.toggleCalendar = (e, id) => {
+        e.stopPropagation();
+        document.querySelectorAll('.calendar-dropdown-cls').forEach(el => { if(el.id !== id) el.style.display='none'; });
+        const cal = document.getElementById(id);
+        if (cal.style.display === 'block') {
+            cal.style.display = 'none';
+            activeDropdownId = '';
+        } else {
+            cal.style.display = 'block';
+            activeDropdownId = id;
+            renderCalendar();
+        }
+    };
+
+    window.onclick = () => {
+        document.querySelectorAll('.calendar-dropdown-cls').forEach(el => el.style.display = 'none');
+        activeDropdownId = '';
+    };
+
+    // --- TAB 4: TỔNG HỢP ---
     window.toggleViewInputs = () => {
         const type = document.getElementById('view-type').value;
         document.getElementById('input-week-group').style.display = (type === 'week') ? 'inline' : 'none';
@@ -518,38 +762,8 @@
             <tr><td><b>Phụ Nữ</b></td><td>${agg.pn.kq || '...'}</td><td>${agg.pn.ph || '...'}</td></tr>`;
     };
 
-    window.toggleCalendar = (e, id) => {
-        e.stopPropagation();
-        document.querySelectorAll('.calendar-dropdown-cls').forEach(el => { if(el.id !== id) el.style.display='none'; });
-        const cal = document.getElementById(id);
-        if (cal.style.display === 'block') {
-            cal.style.display = 'none';
-            activeDropdownId = '';
-        } else {
-            cal.style.display = 'block';
-            activeDropdownId = id;
-            renderCalendar();
-        }
-    };
-
-    window.onclick = () => {
-        document.querySelectorAll('.calendar-dropdown-cls').forEach(el => el.style.display = 'none');
-        activeDropdownId = '';
-    };
-
-    // Gọi hàm khởi tạo sau khi tất cả các hàm liên quan đã sẵn sàng
-    initAllWeekSelects();
-</script>
-
-<script>
-    function openTab(evt, name) {
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
-        document.getElementById(name).classList.add('active');
-        evt.currentTarget.classList.add('active');
-    }
-
-    function exportToWord() {
+    // --- EXPORT WORD (TAB TỔNG HỢP) ---
+    window.exportToWord = function() {
         const content = document.getElementById('capture-area').innerHTML;
         const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>table {border-collapse:collapse; width:100%;} th, td {border:1px solid black; padding:10px; vertical-align: top; font-family: "Times New Roman";} h2 {text-align: center;} </style></head><body>`;
         const footer = "</body></html>";
@@ -558,9 +772,10 @@
         link.href = URL.createObjectURL(blob);
         link.download = `Bao_Cao_Tong_Hop.doc`;
         link.click();
-    }
+    };
 
-    function exportScheduleToWord() {
+    // --- EXPORT WORD LỊCH (TAB 2) ---
+    window.exportScheduleToWord = function() {
         const title = document.getElementById('sch-title').innerText;
         const subtitle = document.getElementById('sch-subtitle').innerText;
         const weekNum = document.getElementById('sch-w').value;
@@ -626,7 +841,18 @@
         link.href = URL.createObjectURL(blob);
         link.download = `Lich_Cong_Tac_Tuan_${weekNum}.doc`; 
         link.click();
-    }
+    };
+
+    // --- OPEN TAB ---
+    window.openTab = function(evt, name) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+        document.getElementById(name).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    };
+
+    // Khởi tạo
+    initAllWeekSelects();
 </script>
 
 </body>
