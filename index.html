@@ -26,7 +26,7 @@
         }
         
         .week-select { padding: 8px 12px; border-radius: 4px; border: 1px solid #ccc; font-weight: 600; font-family: inherit; color: #333; cursor: pointer; min-width: 250px; }
-        select, input[type="number"] { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+        select, input[type="number"], input[type="date"] { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
 
         .calendar-dropdown-cls { display: none; position: absolute; top: 105%; left: 15px; z-index: 1001; background: white; border: 1px solid #ddd; box-shadow: 0 10px 25px rgba(0,0,0,0.15); padding: 15px; border-radius: 8px; width: 300px; }
         .cal-table { width: 100%; text-align: center; border-collapse: collapse; }
@@ -112,6 +112,28 @@
             margin: 0 0 25px 0;
         }
 
+        .date-range-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .date-range-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+        .date-range-group input[type="date"] {
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 13px;
+        }
+        .date-range-group .range-sep {
+            color: #666;
+            font-weight: bold;
+        }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         @media (max-width: 768px) {
@@ -120,6 +142,7 @@
             .grid { grid-template-columns: 1fr; }
             .tabs { flex-direction: column; }
             .tab-link { text-align: center; }
+            .date-range-group { flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -293,19 +316,31 @@
                 <option value="week">Tuần cụ thể</option>
                 <option value="month" selected>Tổng hợp Tháng</option>
                 <option value="year">Tổng hợp Năm</option>
+                <option value="range">Khoảng thời gian</option>
             </select>
 
             <span id="input-week-group" style="display:none;">
                 Tuần: <input type="number" id="view-w" min="1" max="53" style="width:60px;">
             </span>
 
-            <select id="view-m">
-                <script>for(let i=1;i<=12;i++) document.write(`<option value="${String(i).padStart(2,'0')}">Tháng ${i}</option>`)</script>
-            </select>
+            <span id="input-month-group">
+                <select id="view-m">
+                    <script>for(let i=1;i<=12;i++) document.write(`<option value="${String(i).padStart(2,'0')}">Tháng ${i}</option>`)</script>
+                </select>
+            </span>
 
             <select id="view-y">
                 <script>for(let i=2025;i<=2040;i++) document.write(`<option value="${i}">Năm ${i}</option>`)</script>
             </select>
+
+            <!-- Bộ lọc khoảng thời gian -->
+            <span id="input-range-group" style="display:none;" class="date-range-group">
+                <label>Từ:</label>
+                <input type="date" id="view-date-from">
+                <span class="range-sep">→</span>
+                <label>Đến:</label>
+                <input type="date" id="view-date-to">
+            </span>
 
             <button class="btn-agg" id="aggBtn">🔍 Tổng hợp dữ liệu</button>
             <button class="btn-word" onclick="exportToWord()">📝 Xuất File Word</button>
@@ -714,7 +749,24 @@
     window.toggleViewInputs = () => {
         const type = document.getElementById('view-type').value;
         document.getElementById('input-week-group').style.display = (type === 'week') ? 'inline' : 'none';
-        document.getElementById('view-m').style.display = (type === 'month') ? 'inline' : 'none';
+        document.getElementById('input-month-group').style.display = (type === 'month' || type === 'year' || type === 'range') ? 'inline' : 'none';
+        document.getElementById('input-range-group').style.display = (type === 'range') ? 'inline-flex' : 'none';
+        
+        // Ẩn select tháng khi chọn range
+        if (type === 'range') {
+            document.getElementById('view-m').style.display = 'none';
+        } else {
+            document.getElementById('view-m').style.display = 'inline';
+        }
+        
+        // Đặt ngày mặc định cho range
+        if (type === 'range') {
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            document.getElementById('view-date-from').value = firstDay.toISOString().split('T')[0];
+            document.getElementById('view-date-to').value = lastDay.toISOString().split('T')[0];
+        }
     };
 
     document.getElementById('aggBtn').onclick = async () => {
@@ -723,31 +775,62 @@
         const mm = document.getElementById('view-m').value;
         const ww = document.getElementById('view-w').value;
 
-        const snap = await get(ref(db, `reports/${yy}`));
-        if (!snap.exists()) { alert("Không có dữ liệu!"); return; }
-        
-        const all = snap.val();
-        let agg = { mttq:{kq:'',ph:''}, dtn:{kq:'',ph:''}, ccb:{kq:'',ph:''}, pn:{kq:'',ph:''} };
         let targetWeeks = [];
         let title = "";
 
         if (type === 'week') {
-            targetWeeks = Object.keys(all).filter(k => k === `week_${ww}`);
+            targetWeeks = [`week_${ww}`];
             title = `TUẦN ${ww} NĂM ${yy}`;
         } else if (type === 'month') {
-            targetWeeks = Object.keys(all).filter(k => all[k].monthRef === mm);
+            targetWeeks = await getWeeksByMonth(yy, mm);
             title = `THÁNG ${mm} NĂM ${yy}`;
-        } else {
-            targetWeeks = Object.keys(all);
+        } else if (type === 'year') {
+            targetWeeks = await getWeeksByYear(yy);
             title = `NĂM ${yy}`;
+        } else if (type === 'range') {
+            const fromDate = document.getElementById('view-date-from').value;
+            const toDate = document.getElementById('view-date-to').value;
+            if (!fromDate || !toDate) {
+                alert("Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc!");
+                return;
+            }
+            if (fromDate > toDate) {
+                alert("Ngày bắt đầu không được lớn hơn ngày kết thúc!");
+                return;
+            }
+            targetWeeks = await getWeeksByDateRange(fromDate, toDate);
+            
+            const fromParts = fromDate.split('-');
+            const toParts = toDate.split('-');
+            title = `TỪ NGÀY ${fromParts[2]}/${fromParts[1]}/${fromParts[0]} ĐẾN NGÀY ${toParts[2]}/${toParts[1]}/${toParts[0]}`;
         }
 
-        if(targetWeeks.length === 0) { alert("Không thấy dữ liệu!"); return; }
-        targetWeeks.sort((a,b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1]));
+        if(targetWeeks.length === 0) { 
+            alert("Không tìm thấy dữ liệu trong khoảng thời gian này!"); 
+            return; 
+        }
+
+        // Lấy dữ liệu từ Firebase
+        const snap = await get(ref(db, `reports/${yy}`));
+        if (!snap.exists()) { 
+            alert("Không có dữ liệu cho năm này!"); 
+            return; 
+        }
+        
+        const all = snap.val();
+        let agg = { mttq:{kq:'',ph:''}, dtn:{kq:'',ph:''}, ccb:{kq:'',ph:''}, pn:{kq:'',ph:''} };
+        
+        targetWeeks.sort((a,b) => {
+            const numA = parseInt(a.split('_')[1]);
+            const numB = parseInt(b.split('_')[1]);
+            return numA - numB;
+        });
 
         targetWeeks.forEach(k => {
-            const d = all[k], n = k.split('_')[1];
-            const range = ` (Tuần ${n}: ${d.dateFrom.split('-').reverse().slice(0,2).join('/')}-${d.dateTo.split('-').reverse().slice(0,2).join('/')})`;
+            const d = all[k];
+            if (!d) return;
+            const n = k.split('_')[1];
+            const range = ` (Tuần ${n}: ${d.dateFrom?.split('-').reverse().slice(0,2).join('/') || '??'}-${d.dateTo?.split('-').reverse().slice(0,2).join('/') || '??'})`;
             ['mttq','dtn','ccb','pn'].forEach(o => {
                 if(d[o]?.kq) agg[o].kq += `<div style="margin-bottom:10px;"><b>${range}:</b><br>${d[o].kq.replace(/\n/g,'<br>')}</div>`;
                 if(d[o]?.ph) agg[o].ph += `<div style="margin-bottom:10px;">${d[o].ph.replace(/\n/g,'<br>')}</div>`;
@@ -761,6 +844,57 @@
             <tr><td><b>CCB</b></td><td>${agg.ccb.kq || '...'}</td><td>${agg.ccb.ph || '...'}</td></tr>
             <tr><td><b>Phụ Nữ</b></td><td>${agg.pn.kq || '...'}</td><td>${agg.pn.ph || '...'}</td></tr>`;
     };
+
+    // Hàm lấy danh sách tuần theo tháng
+    async function getWeeksByMonth(year, month) {
+        const snap = await get(ref(db, `reports/${year}`));
+        if (!snap.exists()) return [];
+        const all = snap.val();
+        return Object.keys(all).filter(k => all[k].monthRef === month);
+    }
+
+    // Hàm lấy danh sách tuần theo năm
+    async function getWeeksByYear(year) {
+        const snap = await get(ref(db, `reports/${year}`));
+        if (!snap.exists()) return [];
+        return Object.keys(snap.val());
+    }
+
+    // Hàm lấy danh sách tuần theo khoảng thời gian
+    async function getWeeksByDateRange(fromDate, toDate) {
+        const from = new Date(fromDate);
+        const to = new Date(toDate);
+        const fromYear = from.getFullYear();
+        const toYear = to.getFullYear();
+        
+        let result = [];
+        
+        // Duyệt qua từng năm trong khoảng
+        for (let y = fromYear; y <= toYear; y++) {
+            const snap = await get(ref(db, `reports/${y}`));
+            if (!snap.exists()) continue;
+            
+            const all = snap.val();
+            const weekKeys = Object.keys(all);
+            
+            weekKeys.forEach(k => {
+                const weekData = all[k];
+                if (!weekData.dateFrom || !weekData.dateTo) return;
+                
+                const weekFrom = new Date(weekData.dateFrom);
+                const weekTo = new Date(weekData.dateTo);
+                
+                // Kiểm tra xem tuần có nằm trong khoảng thời gian không
+                // Tuần hợp lệ nếu: ngày bắt đầu tuần <= ngày kết thúc khoảng VÀ ngày kết thúc tuần >= ngày bắt đầu khoảng
+                if (weekFrom <= to && weekTo >= from) {
+                    result.push(k);
+                }
+            });
+        }
+        
+        // Loại bỏ trùng lặp
+        return [...new Set(result)];
+    }
 
     // --- EXPORT WORD (TAB TỔNG HỢP) ---
     window.exportToWord = function() {
@@ -853,6 +987,11 @@
 
     // Khởi tạo
     initAllWeekSelects();
+    
+    // Khởi tạo hiển thị mặc định cho tab tổng hợp
+    setTimeout(() => {
+        toggleViewInputs();
+    }, 100);
 </script>
 
 </body>
