@@ -12,10 +12,17 @@
         .header-fixed { position: sticky; top: 0; background: white; z-index: 1000; padding: 15px 15px 5px 15px; margin: -15px -15px 10px -15px; border-radius: 12px 12px 0 0; }
         h1 { text-align: center; color: var(--primary); margin: 0 0 10px 0; font-size: 22px; }
         .tabs { display: flex; gap: 5px; border-bottom: 2px solid #eee; margin-bottom: 10px; flex-wrap: wrap; }
-        .tab-link { padding: 10px 25px; cursor: pointer; border: none; background: none; font-size: 15px; font-weight: 600; color: var(--gray); border-bottom: 3px solid transparent; transition: 0.3s; }
+        .tab-link { padding: 10px 20px; cursor: pointer; border: none; background: none; font-size: 14px; font-weight: 600; color: var(--gray); border-bottom: 3px solid transparent; transition: 0.3s; }
         .tab-link.active { color: var(--primary); border-bottom-color: var(--primary); }
         .tab-content { display: none; animation: fadeIn 0.4s; }
         .tab-content.active { display: block; }
+
+        /* Sub-tabs cho Sản phẩm KPI */
+        .sub-tabs { display: flex; gap: 5px; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .sub-tab-link { padding: 6px 15px; cursor: pointer; border: 1px solid #ccc; background: #f1f3f4; font-size: 13px; font-weight: 600; border-radius: 4px; transition: 0.2s; }
+        .sub-tab-link.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .sub-tab-content { display: none; }
+        .sub-tab-content.active { display: block; }
 
         .toolbar { 
             display: flex; gap: 12px; background: var(--light-bg); padding: 10px 15px; 
@@ -26,7 +33,7 @@
         }
         
         .week-select { padding: 8px 12px; border-radius: 4px; border: 1px solid #ccc; font-weight: 600; font-family: inherit; color: #333; cursor: pointer; min-width: 250px; }
-        select, input[type="number"], input[type="date"] { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+        select, input[type="number"], input[type="date"], input[type="text"] { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
 
         .calendar-dropdown-cls { display: none; position: absolute; top: 105%; left: 15px; z-index: 1001; background: white; border: 1px solid #ddd; box-shadow: 0 10px 25px rgba(0,0,0,0.15); padding: 15px; border-radius: 8px; width: 300px; }
         .cal-table { width: 100%; text-align: center; border-collapse: collapse; }
@@ -43,6 +50,8 @@
         .btn-save { background: var(--secondary); color: white; margin-left: auto; }
         .btn-agg { background: var(--primary); color: white; }
         .btn-word { background: #2b579a; color: white; }
+        .btn-excel { background: #1f6f43; color: white; }
+        .btn-add-name { background: #e37400; color: white; padding: 6px 10px; font-size: 13px; }
         
         .summary-preview { background: #fff; border: 1px solid #ccc; padding: 40px; margin-top: 5px; min-height: 500px; }
         .preview-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -53,86 +62,23 @@
         .schedule-table th, .schedule-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         .schedule-table th { background: var(--light-bg); color: #333; font-weight: bold; text-align: center; }
         .schedule-table td input, .schedule-table td textarea { 
-            width: 100%; 
-            padding: 8px; 
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            box-sizing: border-box; 
-            font-family: inherit;
-            resize: vertical; 
-            min-height: 60px; 
+            width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; resize: vertical; min-height: 60px; 
         }
 
-        /* Style cho tab xem lịch */
-        .schedule-view-item {
-            border-bottom: 1px solid #d3d3d3;
-            padding: 15px 0;
-        }
-        .schedule-view-item:last-child {
-            border-bottom: none;
-        }
-        .schedule-view-day {
-            text-align: center;
-            color: #c00000;
-            font-family: 'Times New Roman';
-            font-size: 14pt;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        .schedule-view-content {
-            font-family: 'Times New Roman';
-            font-size: 11pt;
-            line-height: 1.5;
-            padding-left: 10px;
-        }
-        .schedule-view-content .event-item {
-            margin: 4px 0;
-        }
-        .schedule-view-content .event-label {
-            font-weight: bold;
-        }
-        .schedule-view-empty {
-            color: #7f7f7f;
-            font-style: italic;
-            margin: 4px 0;
-        }
-        .schedule-view-title {
-            text-align: center;
-            font-family: 'Times New Roman';
-            font-size: 16pt;
-            color: #002060;
-            margin: 0 0 5px 0;
-        }
-        .schedule-view-subtitle {
-            text-align: center;
-            font-style: italic;
-            font-family: 'Times New Roman';
-            font-size: 12pt;
-            color: #404040;
-            margin: 0 0 25px 0;
-        }
+        .schedule-view-item { border-bottom: 1px solid #d3d3d3; padding: 15px 0; }
+        .schedule-view-item:last-child { border-bottom: none; }
+        .schedule-view-day { text-align: center; color: #c00000; font-family: 'Times New Roman'; font-size: 14pt; font-weight: bold; margin-bottom: 8px; }
+        .schedule-view-content { font-family: 'Times New Roman'; font-size: 11pt; line-height: 1.5; padding-left: 10px; }
+        .schedule-view-content .event-item { margin: 4px 0; }
+        .schedule-view-content .event-label { font-weight: bold; }
+        .schedule-view-empty { color: #7f7f7f; font-style: italic; margin: 4px 0; }
+        .schedule-view-title { text-align: center; font-family: 'Times New Roman'; font-size: 16pt; color: #002060; margin: 0 0 5px 0; }
+        .schedule-view-subtitle { text-align: center; font-style: italic; font-family: 'Times New Roman'; font-size: 12pt; color: #404040; margin: 0 0 25px 0; }
 
-        .date-range-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .date-range-group label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #333;
-        }
-        .date-range-group input[type="date"] {
-            padding: 6px 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            font-size: 13px;
-        }
-        .date-range-group .range-sep {
-            color: #666;
-            font-weight: bold;
-        }
+        .date-range-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .date-range-group label { font-size: 13px; font-weight: 600; color: #333; }
+        .date-range-group input[type="date"] { padding: 6px 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; }
+        .date-range-group .range-sep { color: #666; font-weight: bold; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
@@ -142,7 +88,6 @@
             .grid { grid-template-columns: 1fr; }
             .tabs { flex-direction: column; }
             .tab-link { text-align: center; }
-            .date-range-group { flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -156,6 +101,7 @@
             <button class="tab-link" onclick="openTab(event, 'schedule-tab')">📅 Lịch công tác tuần</button>
             <button class="tab-link" onclick="openTab(event, 'view-schedule-tab')">👁️ Xem Lịch công tác</button>
             <button class="tab-link" onclick="openTab(event, 'summary-tab')">📊 Tổng hợp Báo cáo</button>
+            <button class="tab-link" onclick="openTab(event, 'kpi-tab')">🎯 Sản phẩm KPI</button>
         </div>
     </div>
 
@@ -272,7 +218,7 @@
         </div>
     </div>
 
-    <!-- TAB 3: XEM LỊCH CÔNG TÁC (Dạng danh sách giống xuất file) -->
+    <!-- TAB 3: XEM LỊCH CÔNG TÁC -->
     <div id="view-schedule-tab" class="tab-content">
         <div class="toolbar">
             <strong>Thời gian:</strong>
@@ -297,7 +243,6 @@
             <button class="btn-word" onclick="exportViewScheduleToWord()">📝 Xuất File Lịch</button>
         </div>
 
-        <!-- Khu vực hiển thị lịch dạng danh sách -->
         <div id="view-schedule-display" style="background: white; padding: 30px; border: 1px solid #ccc; border-radius: 8px; min-height: 400px;">
             <h2 id="view-sch-title" class="schedule-view-title">LỊCH CÔNG TÁC TUẦN</h2>
             <p id="view-sch-subtitle" class="schedule-view-subtitle">Đơn vị: Mặt trận Tổ quốc Việt Nam phường Ninh Kiều</p>
@@ -333,7 +278,6 @@
                 <script>for(let i=2025;i<=2040;i++) document.write(`<option value="${i}">Năm ${i}</option>`)</script>
             </select>
 
-            <!-- Bộ lọc khoảng thời gian -->
             <span id="input-range-group" style="display:none;" class="date-range-group">
                 <label>Từ:</label>
                 <input type="date" id="view-date-from">
@@ -363,6 +307,97 @@
             </table>
         </div>
     </div>
+
+    <!-- TAB 5: SẢN PHẨM KPI -->
+    <div id="kpi-tab" class="tab-content">
+        <div class="sub-tabs">
+            <button class="sub-tab-link active" onclick="openSubTab(event, 'kpi-input-sub')">📝 Đăng ký sản phẩm</button>
+            <button class="sub-tab-link" onclick="openSubTab(event, 'kpi-summary-sub')">📈 Tổng hợp sản phẩm</button>
+        </div>
+
+        <!-- SUB-TAB 5.1: ĐĂNG KÝ SẢN PHẨM -->
+        <div id="kpi-input-sub" class="sub-tab-content active">
+            <div class="toolbar">
+                <strong>Thời gian (Tuần):</strong>
+                <select id="kpi-week-select" class="week-select"></select>
+                
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <label style="font-weight: 600; font-size: 13px;">Tên người đăng ký:</label>
+                    <select id="kpi-name-select" style="min-width: 160px;"></select>
+                    <button class="btn-add-name" onclick="addNewNamePrompt()" title="Thêm tên mới">➕</button>
+                    <button style="background: var(--danger); color: white; padding: 6px 10px; font-size: 13px;" onclick="deleteNamePrompt()" title="Xóa tên đang chọn">🗑️</button>
+                </div>
+
+                <span id="kpi-load-status" style="color: var(--gray); font-style: italic; font-size: 12px;"></span>
+                <button class="btn-save" id="kpiSaveBtn">💾 Lưu Đăng Ký KPI</button>
+                
+                <input type="hidden" id="kpi-w">
+                <input type="hidden" id="kpi-y">
+            </div>
+
+            <div class="grid">
+                <div class="card" style="grid-column: span 2;">
+                    <h2>Đăng ký sản phẩm và phương hướng tuần</h2>
+                    <div class="input-group">
+                        <div>
+                            <label style="font-size:12px; font-weight:bold; color:var(--primary);">Sản phẩm đăng ký:</label>
+                            <textarea id="kpi-product" placeholder="Nhập chi tiết sản phẩm đăng ký trong tuần..."></textarea>
+                        </div>
+                        <div>
+                            <label style="font-size:12px; font-weight:bold; color:var(--secondary);">Phương hướng tuần sau:</label>
+                            <textarea id="kpi-direction" placeholder="Nhập phương hướng tuần sau..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUB-TAB 5.2: TỔNG HỢP SẢN PHẨM -->
+        <div id="kpi-summary-sub" class="sub-tab-content">
+            <div class="toolbar">
+                <strong>Xem theo Tuần:</strong>
+                <input type="number" id="kpi-sum-w" min="1" max="53" style="width: 60px;" placeholder="Tuần">
+                
+                <strong>Tháng:</strong>
+                <select id="kpi-sum-m">
+                    <option value="all">-- Tất cả Tháng --</option>
+                    <script>for(let i=1;i<=12;i++) document.write(`<option value="${String(i).padStart(2,'0')}">Tháng ${i}</option>`)</script>
+                </select>
+
+                <strong>Năm:</strong>
+                <select id="kpi-sum-y">
+                    <script>for(let i=2025;i<=2040;i++) document.write(`<option value="${i}">Năm ${i}</option>`)</script>
+                </select>
+
+                <strong>Người thực hiện:</strong>
+                <select id="kpi-sum-name" style="min-width: 150px;">
+                    <option value="all">-- Tất cả cá nhân --</option>
+                </select>
+
+                <button class="btn-agg" id="kpiAggBtn">🔍 Tổng hợp KPI</button>
+                <button class="btn-excel" onclick="exportKPIToExcel()">📊 Xuất File Excel</button>
+            </div>
+
+            <div id="kpi-capture-area" class="summary-preview">
+                <h2 style="text-align: center; margin: 0; font-family: 'Times New Roman';">TỔNG HỢP ĐĂNG KÝ SẢN PHẨM & PHƯƠNG HƯỚNG KPI</h2>
+                <p style="text-align: center; font-style: italic; margin: 10px 0 20px 0; font-family: 'Times New Roman'; font-size: 16px;" id="kpi-out-time"></p>
+                <table class="preview-table" id="kpi-result-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%;">STT</th>
+                            <th style="width: 18%;">Tuần / Thời gian</th>
+                            <th style="width: 18%;">Họ và tên</th>
+                            <th style="width: 28%;">Sản phẩm đăng ký</th>
+                            <th style="width: 28%;">Phương hướng tuần sau</th>
+                        </tr>
+                    </thead>
+                    <tbody id="kpi-out-body">
+                        <tr><td colspan="5" style="text-align:center; color:gray;">Chưa có dữ liệu tổng hợp. Vui lòng chọn điều kiện và bấm Tổng hợp.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="module">
@@ -386,8 +421,6 @@
     let activeDropdownId = '';
     const fields = ['mttq-kq', 'mttq-ph', 'dtn-kq', 'dtn-ph', 'ccb-kq', 'ccb-ph', 'pn-kq', 'pn-ph'];
     const daysOfWeek = ['t2', 't3', 't4', 't5', 't6', 't7', 'cn'];
-    const dayNames = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
-    const dayLabels = ['lbl-t2', 'lbl-t3', 'lbl-t4', 'lbl-t5', 'lbl-t6', 'lbl-t7', 'lbl-cn'];
 
     function getWeekData(date) {
         let d = new Date(date);
@@ -401,7 +434,7 @@
     }
 
     function initAllWeekSelects() {
-        const selects = ['week-select-box', 'schedule-week-select', 'view-schedule-week-select'];
+        const selects = ['week-select-box', 'schedule-week-select', 'view-schedule-week-select', 'kpi-week-select'];
         const now = new Date();
         const currentData = getWeekData(now);
         
@@ -422,10 +455,10 @@
             document.getElementById(id).innerHTML = optionsHtml;
         });
 
-        // Khởi tạo các handler
         handleWeekChange(document.getElementById('week-select-box').value);
         handleScheduleWeekChange(document.getElementById('schedule-week-select').value);
         handleViewScheduleWeekChange(document.getElementById('view-schedule-week-select').value);
+        handleKPIWeekChange(document.getElementById('kpi-week-select').value);
     }
 
     // --- XỬ LÝ TAB 1 ---
@@ -440,7 +473,6 @@
         renderCalendar();
         loadCurrentWeekData();
     }
-
     document.getElementById('week-select-box').onchange = (e) => handleWeekChange(e.target.value);
 
     async function loadCurrentWeekData() {
@@ -478,45 +510,31 @@
         document.getElementById('sch-w').value = data.weekNo;
         document.getElementById('sch-y').value = data.year;
         currentViewDate = new Date(data.monday);
-        
         let start = new Date(data.monday);
         daysOfWeek.forEach((day, idx) => {
             let currentDay = new Date(start);
             currentDay.setDate(start.getDate() + idx);
             document.getElementById(`lbl-${day}`).innerText = `${currentDay.getDate()}/${currentDay.getMonth()+1}`;
         });
-
         updateScheduleTitle();
         renderCalendar();
         loadScheduleData();
     }
-
     document.getElementById('schedule-week-select').onchange = (e) => handleScheduleWeekChange(e.target.value);
 
     function updateScheduleTitle() {
         const selectSchedule = document.getElementById('schedule-week-select');
         if (!selectSchedule.value) return;
-        
         const data = JSON.parse(selectSchedule.value);
-        const w = data.weekNo;
-        const y = data.year;
-        
-        const mondayDate = new Date(data.monday);
-        const sundayDate = new Date(data.sunday);
-        const fromStr = `${mondayDate.getDate()}/${mondayDate.getMonth() + 1}`;
-        const toStr = `${sundayDate.getDate()}/${sundayDate.getMonth() + 1}`;
-        
-        document.getElementById('sch-title').innerText = `LỊCH CÔNG TÁC TUẦN ${w} (Từ ${fromStr} - ${toStr}) - NĂM ${y}`;
+        const w = data.weekNo, y = data.year;
+        const mondayDate = new Date(data.monday), sundayDate = new Date(data.sunday);
+        document.getElementById('sch-title').innerText = `LỊCH CÔNG TÁC TUẦN ${w} (Từ ${mondayDate.getDate()}/${mondayDate.getMonth() + 1} - ${sundayDate.getDate()}/${sundayDate.getMonth() + 1}) - NĂM ${y}`;
         document.getElementById('sch-subtitle').innerText = `Đơn vị: Mặt trận Tổ quốc Việt Nam phường Ninh Kiều`;
     }
 
     async function loadScheduleData() {
-        const y = document.getElementById('sch-y').value;
-        const w = document.getElementById('sch-w').value;
-        const ind = document.getElementById('schedule-industry-select').value;
-        
+        const y = document.getElementById('sch-y').value, w = document.getElementById('sch-w').value, ind = document.getElementById('schedule-industry-select').value;
         document.getElementById('schedule-load-status').innerText = "⌛ Đang tải lịch...";
-        
         const snap = await get(ref(db, `schedule/${y}/week_${w}/${ind}`));
         if(snap.exists()) {
             const data = snap.val();
@@ -537,10 +555,7 @@
     }
 
     document.getElementById('scheduleSaveBtn').onclick = async () => {
-        const y = document.getElementById('sch-y').value;
-        const w = document.getElementById('sch-w').value;
-        const ind = document.getElementById('schedule-industry-select').value;
-
+        const y = document.getElementById('sch-y').value, w = document.getElementById('sch-w').value, ind = document.getElementById('schedule-industry-select').value;
         let scheduleData = {};
         daysOfWeek.forEach(day => {
             scheduleData[day] = {
@@ -549,7 +564,6 @@
                 toi: document.getElementById(`sch-${day}-toi`).value
             };
         });
-
         await set(ref(db, `schedule/${y}/week_${w}/${ind}`), scheduleData);
         alert("✅ Đã lưu lịch công tác tuần thành công!");
     };
@@ -563,24 +577,14 @@
         renderCalendar();
         loadViewScheduleData(data);
     }
-
     document.getElementById('view-schedule-week-select').onchange = (e) => handleViewScheduleWeekChange(e.target.value);
 
     async function loadViewScheduleData(weekData) {
-        const y = weekData.year;
-        const w = weekData.weekNo;
-        const ind = 'MTTQ'; // Mặc định lấy MTTQ
-        
+        const y = weekData.year, w = weekData.weekNo, ind = 'MTTQ';
         document.getElementById('view-schedule-load-status').innerText = "⌛ Đang tải lịch...";
-        
         const snap = await get(ref(db, `schedule/${y}/week_${w}/${ind}`));
-        
-        // Cập nhật tiêu đề
-        const mondayDate = new Date(weekData.monday);
-        const sundayDate = new Date(weekData.sunday);
-        const fromStr = `${mondayDate.getDate()}/${mondayDate.getMonth() + 1}`;
-        const toStr = `${sundayDate.getDate()}/${sundayDate.getMonth() + 1}`;
-        document.getElementById('view-sch-title').innerText = `LỊCH CÔNG TÁC TUẦN ${w} (Từ ${fromStr} - ${toStr}) - NĂM ${y}`;
+        const mondayDate = new Date(weekData.monday), sundayDate = new Date(weekData.sunday);
+        document.getElementById('view-sch-title').innerText = `LỊCH CÔNG TÁC TUẦN ${w} (Từ ${mondayDate.getDate()}/${mondayDate.getMonth() + 1} - ${sundayDate.getDate()}/${sundayDate.getMonth() + 1}) - NĂM ${y}`;
         document.getElementById('view-sch-subtitle').innerText = `Đơn vị: Mặt trận Tổ quốc Việt Nam phường Ninh Kiều`;
         
         let data = {};
@@ -591,70 +595,39 @@
             document.getElementById('view-schedule-load-status').innerText = "✨ Lịch trống.";
         }
         
-        // Render danh sách
         const container = document.getElementById('view-schedule-list');
         let html = '';
-        
         const dayIds = ['t2', 't3', 't4', 't5', 't6', 't7', 'cn'];
         const dayNamesFull = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
-        
         let start = new Date(weekData.monday);
         
         dayIds.forEach((dayId, idx) => {
             let currentDay = new Date(start);
             currentDay.setDate(start.getDate() + idx);
             const dateStr = `${currentDay.getDate()}/${currentDay.getMonth()+1}/${currentDay.getFullYear()}`;
-            
             const dayData = data[dayId] || {};
-            const sang = dayData.sang || '';
-            const chieu = dayData.chieu || '';
-            const toi = dayData.toi || '';
-            
+            const sang = dayData.sang || '', chieu = dayData.chieu || '', toi = dayData.toi || '';
             const hasEvent = sang || chieu || toi;
             
-            html += `<div class="schedule-view-item">`;
-            html += `<div class="schedule-view-day">${dayNamesFull[idx]}, NGÀY ${dateStr}</div>`;
-            html += `<div class="schedule-view-content">`;
-            
-            if (sang) {
-                html += `<div class="event-item">- <span class="event-label">Buổi Sáng:</span> ${sang.replace(/\n/g, '<br>')}</div>`;
-            }
-            if (chieu) {
-                html += `<div class="event-item">- <span class="event-label">Buổi Chiều:</span> ${chieu.replace(/\n/g, '<br>')}</div>`;
-            }
-            if (toi) {
-                html += `<div class="event-item">- <span class="event-label">Buổi Tối:</span> ${toi.replace(/\n/g, '<br>')}</div>`;
-            }
-            if (!hasEvent) {
-                html += `<div class="schedule-view-empty">Không có sự kiện</div>`;
-            }
-            
+            html += `<div class="schedule-view-item"><div class="schedule-view-day">${dayNamesFull[idx]}, NGÀY ${dateStr}</div><div class="schedule-view-content">`;
+            if (sang) html += `<div class="event-item">- <span class="event-label">Buổi Sáng:</span> ${sang.replace(/\n/g, '<br>')}</div>`;
+            if (chieu) html += `<div class="event-item">- <span class="event-label">Buổi Chiều:</span> ${chieu.replace(/\n/g, '<br>')}</div>`;
+            if (toi) html += `<div class="event-item">- <span class="event-label">Buổi Tối:</span> ${toi.replace(/\n/g, '<br>')}</div>`;
+            if (!hasEvent) html += `<div class="schedule-view-empty">Không có sự kiện</div>`;
             html += `</div></div>`;
         });
-        
         container.innerHTML = html;
     }
 
-    // Xuất lịch từ tab xem
     window.exportViewScheduleToWord = function() {
         const container = document.getElementById('view-schedule-display');
         const content = container.innerHTML;
-        const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>
-            .schedule-view-item { border-bottom: 1px solid #d3d3d3; padding: 15px 0; }
-            .schedule-view-day { text-align: center; color: #c00000; font-family: 'Times New Roman'; font-size: 14pt; font-weight: bold; margin-bottom: 8px; }
-            .schedule-view-content { font-family: 'Times New Roman'; font-size: 11pt; line-height: 1.5; padding-left: 10px; }
-            .event-item { margin: 4px 0; }
-            .event-label { font-weight: bold; }
-            .schedule-view-empty { color: #7f7f7f; font-style: italic; margin: 4px 0; }
-            .schedule-view-title { text-align: center; font-family: 'Times New Roman'; font-size: 16pt; color: #002060; margin: 0 0 5px 0; }
-            .schedule-view-subtitle { text-align: center; font-style: italic; font-family: 'Times New Roman'; font-size: 12pt; color: #404040; margin: 0 0 25px 0; }
-        </style></head><body>`;
+        const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>`;
         const footer = "</body></html>";
         const blob = new Blob(['\ufeff', header + content + footer], { type: 'application/msword' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        const weekNum = document.getElementById('view-sch-w').value || 'XX';
-        link.download = `Lich_Cong_Tac_Tuan_${weekNum}.doc`;
+        link.download = `Lich_Cong_Tac_Tuan_${document.getElementById('view-sch-w').value || 'XX'}.doc`;
         link.click();
     };
 
@@ -666,23 +639,13 @@
         const container = document.getElementById(activeDropdownId);
         const year = currentViewDate.getFullYear(); const month = currentViewDate.getMonth();
         container.querySelector('.cal-month-year-lbl').innerText = `Tháng ${month + 1}/${year}`;
-        
         let startDay = new Date(year, month, 1);
         startDay.setDate(startDay.getDate() - (startDay.getDay() === 0 ? 6 : startDay.getDay() - 1));
         
-        let html = ''; 
-        let selectedW = '';
-        let selectedY = '';
-        if (activeDropdownId === 'calendar-dropdown') {
-            selectedW = document.getElementById('w').value;
-            selectedY = document.getElementById('y').value;
-        } else if (activeDropdownId === 'schedule-calendar-dropdown') {
-            selectedW = document.getElementById('sch-w').value;
-            selectedY = document.getElementById('sch-y').value;
-        } else if (activeDropdownId === 'view-schedule-calendar-dropdown') {
-            selectedW = document.getElementById('view-sch-w').value;
-            selectedY = document.getElementById('view-sch-y').value;
-        }
+        let html = ''; let selectedW = '', selectedY = '';
+        if (activeDropdownId === 'calendar-dropdown') { selectedW = document.getElementById('w').value; selectedY = document.getElementById('y').value; }
+        else if (activeDropdownId === 'schedule-calendar-dropdown') { selectedW = document.getElementById('sch-w').value; selectedY = document.getElementById('sch-y').value; }
+        else if (activeDropdownId === 'view-schedule-calendar-dropdown') { selectedW = document.getElementById('view-sch-w').value; selectedY = document.getElementById('view-sch-y').value; }
         
         for (let i = 0; i < 6; i++) {
             let rowDate = new Date(startDay);
@@ -702,13 +665,9 @@
     window.selectWeek = (row, startDateStr) => {
         let weekInfo = getWeekData(new Date(startDateStr));
         let selectId = '';
-        if (activeDropdownId === 'calendar-dropdown') {
-            selectId = 'week-select-box';
-        } else if (activeDropdownId === 'schedule-calendar-dropdown') {
-            selectId = 'schedule-week-select';
-        } else if (activeDropdownId === 'view-schedule-calendar-dropdown') {
-            selectId = 'view-schedule-week-select';
-        }
+        if (activeDropdownId === 'calendar-dropdown') selectId = 'week-select-box';
+        else if (activeDropdownId === 'schedule-calendar-dropdown') selectId = 'schedule-week-select';
+        else if (activeDropdownId === 'view-schedule-calendar-dropdown') selectId = 'view-schedule-week-select';
         
         if (selectId) {
             const select = document.getElementById(selectId);
@@ -730,14 +689,8 @@
         e.stopPropagation();
         document.querySelectorAll('.calendar-dropdown-cls').forEach(el => { if(el.id !== id) el.style.display='none'; });
         const cal = document.getElementById(id);
-        if (cal.style.display === 'block') {
-            cal.style.display = 'none';
-            activeDropdownId = '';
-        } else {
-            cal.style.display = 'block';
-            activeDropdownId = id;
-            renderCalendar();
-        }
+        if (cal.style.display === 'block') { cal.style.display = 'none'; activeDropdownId = ''; }
+        else { cal.style.display = 'block'; activeDropdownId = id; renderCalendar(); }
     };
 
     window.onclick = () => {
@@ -745,86 +698,41 @@
         activeDropdownId = '';
     };
 
-    // --- TAB 4: TỔNG HỢP ---
+    // --- TAB 4: TỔNG HỢP BÁO CÁO ---
     window.toggleViewInputs = () => {
         const type = document.getElementById('view-type').value;
         document.getElementById('input-week-group').style.display = (type === 'week') ? 'inline' : 'none';
         document.getElementById('input-month-group').style.display = (type === 'month' || type === 'year' || type === 'range') ? 'inline' : 'none';
         document.getElementById('input-range-group').style.display = (type === 'range') ? 'inline-flex' : 'none';
-        
-        // Ẩn select tháng khi chọn range
-        if (type === 'range') {
-            document.getElementById('view-m').style.display = 'none';
-        } else {
-            document.getElementById('view-m').style.display = 'inline';
-        }
-        
-        // Đặt ngày mặc định cho range
+        document.getElementById('view-m').style.display = (type === 'range') ? 'none' : 'inline';
         if (type === 'range') {
             const now = new Date();
-            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-            document.getElementById('view-date-from').value = firstDay.toISOString().split('T')[0];
-            document.getElementById('view-date-to').value = lastDay.toISOString().split('T')[0];
+            document.getElementById('view-date-from').value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+            document.getElementById('view-date-to').value = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
         }
     };
 
     document.getElementById('aggBtn').onclick = async () => {
-        const type = document.getElementById('view-type').value;
-        const yy = document.getElementById('view-y').value;
-        const mm = document.getElementById('view-m').value;
-        const ww = document.getElementById('view-w').value;
+        const type = document.getElementById('view-type').value, yy = document.getElementById('view-y').value, mm = document.getElementById('view-m').value, ww = document.getElementById('view-w').value;
+        let targetWeeks = [], title = "";
 
-        let targetWeeks = [];
-        let title = "";
-
-        if (type === 'week') {
-            targetWeeks = [`week_${ww}`];
-            title = `TUẦN ${ww} NĂM ${yy}`;
-        } else if (type === 'month') {
-            targetWeeks = await getWeeksByMonth(yy, mm);
-            title = `THÁNG ${mm} NĂM ${yy}`;
-        } else if (type === 'year') {
-            targetWeeks = await getWeeksByYear(yy);
-            title = `NĂM ${yy}`;
-        } else if (type === 'range') {
-            const fromDate = document.getElementById('view-date-from').value;
-            const toDate = document.getElementById('view-date-to').value;
-            if (!fromDate || !toDate) {
-                alert("Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc!");
-                return;
-            }
-            if (fromDate > toDate) {
-                alert("Ngày bắt đầu không được lớn hơn ngày kết thúc!");
-                return;
-            }
+        if (type === 'week') { targetWeeks = [`week_${ww}`]; title = `TUẦN ${ww} NĂM ${yy}`; }
+        else if (type === 'month') { targetWeeks = await getWeeksByMonth(yy, mm); title = `THÁNG ${mm} NĂM ${yy}`; }
+        else if (type === 'year') { targetWeeks = await getWeeksByYear(yy); title = `NĂM ${yy}`; }
+        else if (type === 'range') {
+            const fromDate = document.getElementById('view-date-from').value, toDate = document.getElementById('view-date-to').value;
+            if (!fromDate || !toDate || fromDate > toDate) { alert("Vui lòng chọn khoảng thời gian hợp lệ!"); return; }
             targetWeeks = await getWeeksByDateRange(fromDate, toDate);
-            
-            const fromParts = fromDate.split('-');
-            const toParts = toDate.split('-');
-            title = `TỪ NGÀY ${fromParts[2]}/${fromParts[1]}/${fromParts[0]} ĐẾN NGÀY ${toParts[2]}/${toParts[1]}/${toParts[0]}`;
+            title = `TỪ NGÀY ${fromDate.split('-').reverse().join('/')} ĐẾN NGÀY ${toDate.split('-').reverse().join('/')}`;
         }
 
-        if(targetWeeks.length === 0) { 
-            alert("Không tìm thấy dữ liệu trong khoảng thời gian này!"); 
-            return; 
-        }
-
-        // Lấy dữ liệu từ Firebase
+        if(targetWeeks.length === 0) { alert("Không tìm thấy dữ liệu trong khoảng thời gian này!"); return; }
         const snap = await get(ref(db, `reports/${yy}`));
-        if (!snap.exists()) { 
-            alert("Không có dữ liệu cho năm này!"); 
-            return; 
-        }
+        if (!snap.exists()) { alert("Không có dữ liệu cho năm này!"); return; }
         
         const all = snap.val();
         let agg = { mttq:{kq:'',ph:''}, dtn:{kq:'',ph:''}, ccb:{kq:'',ph:''}, pn:{kq:'',ph:''} };
-        
-        targetWeeks.sort((a,b) => {
-            const numA = parseInt(a.split('_')[1]);
-            const numB = parseInt(b.split('_')[1]);
-            return numA - numB;
-        });
+        targetWeeks.sort((a,b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1]));
 
         targetWeeks.forEach(k => {
             const d = all[k];
@@ -845,139 +753,256 @@
             <tr><td><b>Phụ Nữ</b></td><td>${agg.pn.kq || '...'}</td><td>${agg.pn.ph || '...'}</td></tr>`;
     };
 
-    // Hàm lấy danh sách tuần theo tháng
     async function getWeeksByMonth(year, month) {
         const snap = await get(ref(db, `reports/${year}`));
         if (!snap.exists()) return [];
-        const all = snap.val();
-        return Object.keys(all).filter(k => all[k].monthRef === month);
+        return Object.keys(snap.val()).filter(k => snap.val()[k].monthRef === month);
     }
-
-    // Hàm lấy danh sách tuần theo năm
     async function getWeeksByYear(year) {
         const snap = await get(ref(db, `reports/${year}`));
-        if (!snap.exists()) return [];
-        return Object.keys(snap.val());
+        return snap.exists() ? Object.keys(snap.val()) : [];
     }
-
-    // Hàm lấy danh sách tuần theo khoảng thời gian
     async function getWeeksByDateRange(fromDate, toDate) {
-        const from = new Date(fromDate);
-        const to = new Date(toDate);
-        const fromYear = from.getFullYear();
-        const toYear = to.getFullYear();
-        
+        const from = new Date(fromDate), to = new Date(toDate);
         let result = [];
-        
-        // Duyệt qua từng năm trong khoảng
-        for (let y = fromYear; y <= toYear; y++) {
+        for (let y = from.getFullYear(); y <= to.getFullYear(); y++) {
             const snap = await get(ref(db, `reports/${y}`));
             if (!snap.exists()) continue;
-            
-            const all = snap.val();
-            const weekKeys = Object.keys(all);
-            
-            weekKeys.forEach(k => {
-                const weekData = all[k];
-                if (!weekData.dateFrom || !weekData.dateTo) return;
-                
-                const weekFrom = new Date(weekData.dateFrom);
-                const weekTo = new Date(weekData.dateTo);
-                
-                // Kiểm tra xem tuần có nằm trong khoảng thời gian không
-                // Tuần hợp lệ nếu: ngày bắt đầu tuần <= ngày kết thúc khoảng VÀ ngày kết thúc tuần >= ngày bắt đầu khoảng
-                if (weekFrom <= to && weekTo >= from) {
-                    result.push(k);
-                }
+            Object.keys(snap.val()).forEach(k => {
+                const wData = snap.val()[k];
+                if (wData.dateFrom && wData.dateTo && new Date(wData.dateFrom) <= to && new Date(wData.dateTo) >= from) result.push(k);
             });
         }
-        
-        // Loại bỏ trùng lặp
         return [...new Set(result)];
     }
 
-    // --- EXPORT WORD (TAB TỔNG HỢP) ---
     window.exportToWord = function() {
         const content = document.getElementById('capture-area').innerHTML;
         const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>table {border-collapse:collapse; width:100%;} th, td {border:1px solid black; padding:10px; vertical-align: top; font-family: "Times New Roman";} h2 {text-align: center;} </style></head><body>`;
-        const footer = "</body></html>";
-        const blob = new Blob(['\ufeff', header + content + footer], { type: 'application/msword' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `Bao_Cao_Tong_Hop.doc`;
-        link.click();
+        const blob = new Blob(['\ufeff', header + content + "</body></html>"], { type: 'application/msword' });
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `Bao_Cao_Tong_Hop.doc`; link.click();
     };
 
-    // --- EXPORT WORD LỊCH (TAB 2) ---
-    window.exportScheduleToWord = function() {
-        const title = document.getElementById('sch-title').innerText;
-        const subtitle = document.getElementById('sch-subtitle').innerText;
-        const weekNum = document.getElementById('sch-w').value;
+    // --- TAB 5: SẢN PHẨM KPI ---
+    window.openSubTab = function(evt, name) {
+        document.querySelectorAll('.sub-tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.sub-tab-link').forEach(l => l.classList.remove('active'));
+        document.getElementById(name).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    };
+
+    // Quản lý danh sách Tên người đăng ký lưu trên Firebase
+    async function loadNamesToComboboxes() {
+        const snap = await get(ref(db, 'kpi_names'));
+        let names = snap.exists() ? snap.val() : ["Nguyễn Văn A", "Trần Thị B"];
         
-        let listContentHtml = "";
-        const days = [
-            {lbl: 'THỨ HAI', id: 't2'}, {lbl: 'THỨ BA', id: 't3'}, {lbl: 'THỨ TƯ', id: 't4'},
-            {lbl: 'THỨ NĂM', id: 't5'}, {lbl: 'THỨ SÁU', id: 't6'}, {lbl: 'THỨ BẢY', id: 't7'}, {lbl: 'CHỦ NHẬT', id: 'cn'}
-        ];
+        const nameSelect = document.getElementById('kpi-name-select');
+        const sumNameSelect = document.getElementById('kpi-sum-name');
         
-        days.forEach(d => {
-            const dateStr = document.getElementById(`lbl-${d.id}`).innerText;
-            const yearStr = document.getElementById('sch-y').value;
+        let optHtml = "";
+        names.forEach(n => { optHtml += `<option value="${n}">${n}</option>`; });
+        nameSelect.innerHTML = optHtml;
+
+        let sumOptHtml = `<option value="all">-- Tất cả cá nhân --</option>`;
+        names.forEach(n => { sumOptHtml += `<option value="${n}">${n}</option>`; });
+        sumNameSelect.innerHTML = sumOptHtml;
+    }
+
+    window.addNewNamePrompt = async function() {
+        const newName = prompt("Nhập họ và tên người đăng ký KPI mới:");
+        if (!newName || !newName.trim()) return;
+        
+        const snap = await get(ref(db, 'kpi_names'));
+        let names = snap.exists() ? snap.val() : ["Nguyễn Văn A", "Trần Thị B"];
+        if (!names.includes(newName.trim())) {
+            names.push(newName.trim());
+            await set(ref(db, 'kpi_names'), names);
+            await loadNamesToComboboxes();
+            document.getElementById('kpi-name-select').value = newName.trim();
+            alert("✅ Đã thêm tên thành công!");
+        } else {
+            alert("Tên này đã tồn tại trong danh sách!");
+        }
+    };
+
+    window.deleteNamePrompt = async function() {
+        const nameSelect = document.getElementById('kpi-name-select');
+        const currentName = nameSelect.value;
+        if (!currentName) { alert("Không có tên nào được chọn để xóa!"); return; }
+        
+        if (confirm(`Bạn có chắc chắn muốn xóa tên "${currentName}" khỏi danh sách?`)) {
+            const snap = await get(ref(db, 'kpi_names'));
+            let names = snap.exists() ? snap.val() : [];
+            names = names.filter(n => n !== currentName);
+            await set(ref(db, 'kpi_names'), names);
+            await loadNamesToComboboxes();
+            alert("✅ Đã xóa tên thành công!");
+            loadKPIData();
+        }
+    };
+
+    function handleKPIWeekChange(value) {
+        const data = JSON.parse(value);
+        document.getElementById('kpi-w').value = data.weekNo;
+        document.getElementById('kpi-y').value = data.year;
+        loadKPIData();
+    }
+    document.getElementById('kpi-week-select').onchange = (e) => handleKPIWeekChange(e.target.value);
+    document.getElementById('kpi-name-select').onchange = () => loadKPIData();
+
+    async function loadKPIData() {
+        const y = document.getElementById('kpi-y').value;
+        const w = document.getElementById('kpi-w').value;
+        const name = document.getElementById('kpi-name-select').value;
+        
+        if (!y || !w || !name) return;
+        
+        document.getElementById('kpi-load-status').innerText = "⌛ Đang tải KPI...";
+        const safeKey = encodeURIComponent(name);
+        const snap = await get(ref(db, `kpis/${y}/week_${w}/${safeKey}`));
+        
+        if (snap.exists()) {
+            const data = snap.val();
+            document.getElementById('kpi-product').value = data.product || "";
+            document.getElementById('kpi-direction').value = data.direction || "";
+            document.getElementById('kpi-load-status').innerText = "✅ Đã tải.";
+        } else {
+            document.getElementById('kpi-product').value = "";
+            document.getElementById('kpi-direction').value = "";
+            document.getElementById('kpi-load-status').innerText = "✨ Chưa có đăng ký.";
+        }
+    }
+
+    document.getElementById('kpiSaveBtn').onclick = async () => {
+        const y = document.getElementById('kpi-y').value;
+        const w = document.getElementById('kpi-w').value;
+        const name = document.getElementById('kpi-name-select').value;
+        
+        if (!name) { alert("Vui lòng chọn tên người đăng ký!"); return; }
+
+        const data = {
+            product: document.getElementById('kpi-product').value,
+            direction: document.getElementById('kpi-direction').value,
+            monthRef: String(new Date(JSON.parse(document.getElementById('kpi-week-select').value).monday).getMonth() + 1).padStart(2, '0')
+        };
+
+        const safeKey = encodeURIComponent(name);
+        await set(ref(db, `kpis/${y}/week_${w}/${safeKey}`), data);
+        alert("✅ Đã lưu sản phẩm KPI thành công!");
+    };
+
+    // Tổng hợp KPI
+    document.getElementById('kpiAggBtn').onclick = async () => {
+        const w = document.getElementById('kpi-sum-w').value;
+        const m = document.getElementById('kpi-sum-m').value;
+        const y = document.getElementById('kpi-sum-y').value;
+        const filterName = document.getElementById('kpi-sum-name').value;
+
+        const snap = await get(ref(db, `kpis/${y}`));
+        if (!snap.exists()) {
+            alert("Không có dữ liệu KPI trong năm này!");
+            return;
+        }
+
+        const allWeeks = snap.val();
+        let rows = [];
+        let titleTime = `NĂM ${y}`;
+
+        if (w) {
+            titleTime = `TUẦN ${w} - NĂM ${y}`;
+            const weekKey = `week_${w}`;
+            if (allWeeks[weekKey]) {
+                const weekData = allWeeks[weekKey];
+                Object.keys(weekData).forEach(encodedName => {
+                    const realName = decodeURIComponent(encodedName);
+                    if (filterName === 'all' || realName === filterName) {
+                        rows.push({
+                            week: w,
+                            name: realName,
+                            product: weekData[encodedName].product || '',
+                            direction: weekData[encodedName].direction || ''
+                        });
+                    }
+                });
+            }
+        } else {
+            // Tổng hợp theo năm hoặc tháng
+            if (m !== 'all') {
+                titleTime = `THÁNG ${m} - NĂM ${y}`;
+            }
             
-            let fullDateLabel = `${d.lbl}, NGÀY ${dateStr}/${yearStr}`;
-            
-            const sangVal = document.getElementById(`sch-${d.id}-sang`).value.trim() || "";
-            const chieuVal = document.getElementById(`sch-${d.id}-chieu`).value.trim() || "";
-            const toiVal = document.getElementById(`sch-${d.id}-toi`).value.trim() || "";
-            
-            listContentHtml += `
-                <div style="text-align: center; margin-top: 20px; margin-bottom: 10px;">
-                    <b style="color: #c00000; font-family: 'Times New Roman'; font-size: 14pt;">${fullDateLabel}</b>
-                </div>
+            Object.keys(allWeeks).forEach(weekKey => {
+                const weekNum = weekKey.split('_')[1];
+                const weekData = allWeeks[weekKey];
+                
+                Object.keys(weekData).forEach(encodedName => {
+                    const item = weekData[encodedName];
+                    if (m === 'all' || item.monthRef === m) {
+                        const realName = decodeURIComponent(encodedName);
+                        if (filterName === 'all' || realName === filterName) {
+                            rows.push({
+                                week: weekNum,
+                                name: realName,
+                                product: item.product || '',
+                                direction: item.direction || ''
+                            });
+                        }
+                    }
+                });
+            });
+        }
+
+        document.getElementById('kpi-out-time').innerText = titleTime;
+        const tbody = document.getElementById('kpi-out-body');
+        
+        if (rows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:gray;">Không tìm thấy dữ liệu phù hợp với điều kiện tổng hợp.</td></tr>`;
+            return;
+        }
+
+        let html = '';
+        rows.forEach((r, idx) => {
+            html += `
+                <tr>
+                    <td style="text-align: center;">${idx + 1}</td>
+                    <td style="text-align: center;">Tuần ${r.week}</td>
+                    <td><b>${r.name}</b></td>
+                    <td>${r.product.replace(/\n/g, '<br>')}</td>
+                    <td>${r.direction.replace(/\n/g, '<br>')}</td>
+                </tr>
             `;
-            
-            let dayHasEvent = false;
-            const formatContent = (text) => text.replace(/\n/g, '<br>');
-
-            if (sangVal) {
-                listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 11pt; margin: 4px 0; line-height: 1.3;">- <b>Buổi Sáng:</b> ${formatContent(sangVal)}</p>`;
-                dayHasEvent = true;
-            }
-            if (chieuVal) {
-                listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 11pt; margin: 4px 0; line-height: 1.3;">- <b>Buổi Chiều:</b> ${formatContent(chieuVal)}</p>`;
-                dayHasEvent = true;
-            }
-            if (toiVal) {
-                listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 11pt; margin: 4px 0; line-height: 1.3;">- <b>Buổi Tối:</b> ${formatContent(toiVal)}</p>`;
-                dayHasEvent = true;
-            }
-            
-            if (!dayHasEvent) {
-                listContentHtml += `<p style="font-family: 'Times New Roman'; font-size: 10pt; color: #7f7f7f; font-style: italic; margin: 4px 0;">Không có sự kiện</p>`;
-            }
-            
-            listContentHtml += `<div style="border-bottom: 1px solid #d3d3d3; margin-top: 15px; margin-bottom: 5px;"></div>`;
         });
+        tbody.innerHTML = html;
+    };
 
-        const fullContent = `
-            <h2 style="text-align: center; margin: 0 0 5px 0; font-family: 'Times New Roman'; font-size: 16pt; color: #002060;">${title}</h2>
-            <p style="text-align: center; font-style: italic; margin: 0 0 25px 0; font-family: 'Times New Roman'; font-size: 12pt; color: #404040;">${subtitle}</p>
-            <div style="width: 100%;">
-                ${listContentHtml}
-            </div>
+    // --- XUẤT RA FILE EXCEL ---
+    window.exportKPIToExcel = function() {
+        const tableHtml = document.getElementById('kpi-capture-area').innerHTML;
+        const excelTemplate = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <head>
+                <meta charset="utf-8">
+                <style>
+                    table { border-collapse: collapse; width: 100%; }
+                    th, td { border: 1px solid black; padding: 10px; vertical-align: top; font-family: "Times New Roman", Times, serif; font-size: 13pt; }
+                    th { background-color: #f2f2f2; font-weight: bold; text-align: center; }
+                    h2 { text-align: center; font-family: "Times New Roman"; color: #002060; }
+                    p { text-align: center; font-style: italic; font-family: "Times New Roman"; }
+                </style>
+            </head>
+            <body>
+                ${tableHtml}
+            </body>
+            </html>
         `;
 
-        const header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body style="padding: 20px;">`;
-        const footer = "</body></html>";
-        const blob = new Blob(['\ufeff', header + fullContent + footer], { type: 'application/msword' });
-        
+        const blob = new Blob(['\ufeff', excelTemplate], { type: 'application/vnd.ms-excel' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = `Lich_Cong_Tac_Tuan_${weekNum}.doc`; 
+        link.download = `Tong_Hop_San_Pham_KPI.xls`;
         link.click();
     };
 
-    // --- OPEN TAB ---
     window.openTab = function(evt, name) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
@@ -985,10 +1010,10 @@
         evt.currentTarget.classList.add('active');
     };
 
-    // Khởi tạo
+    // Khởi tạo hệ thống
     initAllWeekSelects();
+    loadNamesToComboboxes();
     
-    // Khởi tạo hiển thị mặc định cho tab tổng hợp
     setTimeout(() => {
         toggleViewInputs();
     }, 100);
